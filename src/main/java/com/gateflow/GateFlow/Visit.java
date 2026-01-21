@@ -28,21 +28,78 @@ public class Visit {
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
 
-    public Visit(Long id, Driver driver, Car car, Company company, String entryCargo, String exitCargo, LocalDateTime entryTime, LocalDateTime exitTime) {
-        this.id = id;
-        this.driver = driver;
-        this.car = car;
-        this.company = company;
-        this.entryCargo = entryCargo;
-        this.exitCargo = exitCargo;
-        this.entryTime = entryTime;
-        this.exitTime = exitTime;
-    }
-
-    public Visit(){
+    public Visit() {
 
     }
 
+
+    private Visit(VisitBuilder builder) {
+        this.id = builder.id;
+        this.driver = builder.driver;
+        this.car = builder.car;
+        this.company = builder.company;
+        this.entryCargo = builder.entryCargo;
+        this.exitCargo = builder.exitCargo;
+        this.entryTime = builder.entryTime;
+        this.exitTime = builder.exitTime;
+    }
+
+    public static class VisitBuilder {
+        private Long id;
+        private Driver driver;
+        private Car car;
+        private Company company;
+        private LocalDateTime entryTime;
+        private LocalDateTime exitTime;
+        private String entryCargo;
+        private String exitCargo;
+
+        public VisitBuilder id(Long id) {
+            this.id = id;
+            return this;
+        }
+
+        public VisitBuilder driver(Driver driver) {
+            this.driver = driver;
+            return this;
+        }
+
+        public VisitBuilder car(Car car) {
+            this.car = car;
+            return this;
+        }
+
+        public VisitBuilder company(Company company) {
+            this.company = company;
+            return this;
+        }
+
+        public VisitBuilder entryTime(LocalDateTime entryTime) {
+            this.entryTime = entryTime;
+            return this;
+        }
+
+        public VisitBuilder entryCargo(String entryCargo) {
+            this.entryCargo = entryCargo;
+            return this;
+        }
+        public VisitBuilder exitTime(LocalDateTime exitTime){
+            this.exitTime = exitTime;
+            return this;
+        }
+        public VisitBuilder exitCargo(String exitCargo){
+            this.exitCargo = exitCargo;
+            return this;
+        }
+
+        public Visit build() {
+            return new Visit(this);
+        }
+    }
+
+    public static VisitBuilder builder() {
+        return new VisitBuilder();
+    }
     public Long getId() {
         return id;
     }
@@ -106,5 +163,8 @@ public class Visit {
     public void setExitCargo(String exitCargo) {
         this.exitCargo = exitCargo;
     }
+
 }
+
+
 

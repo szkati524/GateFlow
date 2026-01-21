@@ -10,6 +10,6 @@ import java.util.List;
 @Repository
 public interface DriverRepository extends JpaRepository<Driver,Long> {
     public Driver findByNameAndSurnameIgnoreCase(String name,String surname);
-    public List<Driver> findByCompanyIgnoreCase(Company company);
+    public List<Driver> findByCompanyNameIgnoreCase(String name);
     public List<Driver> findByCompanyId(Long id);
 }

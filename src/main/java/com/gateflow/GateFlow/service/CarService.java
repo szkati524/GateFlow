@@ -34,4 +34,7 @@ public class CarService {
     public Optional<Car> findByRegistrationNumber(String registrationNumber){
     return carRepository.findByRegistrationNumberIgnoreCase(registrationNumber);
     }
+    public List<Car> findByCompanyName(String name){
+    return carRepository.findByCompanyNameIgnoreCase(name);
+    }
 }

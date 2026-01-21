@@ -32,8 +32,8 @@ public class DriverService {
     public void deleteById(Long id){
         driverRepository.deleteById(id);
     }
-    public List<Driver> findByCompany(Company company){
-       return driverRepository.findByCompanyIgnoreCase(company);
+    public List<Driver> findByCompany(String name){
+       return driverRepository.findByCompanyNameIgnoreCase(name);
     }
     public List<Driver> findByCompanyId(Long id){
         return driverRepository.findByCompanyId(id);
