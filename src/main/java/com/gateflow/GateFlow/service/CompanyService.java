@@ -1,6 +1,6 @@
 package com.gateflow.GateFlow.service;
 
-import com.gateflow.GateFlow.Company;
+import com.gateflow.GateFlow.model.Company;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -28,7 +28,7 @@ public class CompanyService {
     public void deleteCompanyById(Long id){
      companyRepository.deleteById(id);
     }
-    public Company findByCompanyName(String name){
+    public Optional<Company> findByCompanyName(String name){
     return  companyRepository.findByNameIgnoreCase(name);
     }
 }

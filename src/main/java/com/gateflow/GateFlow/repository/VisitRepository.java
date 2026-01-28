@@ -1,6 +1,6 @@
 package com.gateflow.GateFlow.repository;
 
-import com.gateflow.GateFlow.Visit;
+import com.gateflow.GateFlow.model.Visit;
 
 
 import org.springframework.data.jpa.repository.JpaRepository;

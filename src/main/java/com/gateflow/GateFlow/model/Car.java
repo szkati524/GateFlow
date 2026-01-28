@@ -1,9 +1,11 @@
-package com.gateflow.GateFlow;
+package com.gateflow.GateFlow.model;
 
 import jakarta.persistence.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
-import java.util.List;
 @Entity
+@SoftDelete(columnName = "active",strategy = SoftDeleteType.ACTIVE)
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -15,15 +17,16 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
+@Column(name = "active", insertable = false,updatable = false)
+    private boolean active = true;
 
 
-
-    public Car(Long id, String registrationNumber, String brand, Company company) {
+    public Car(Long id, String registrationNumber, String brand, Company company, boolean active) {
         this.id = id;
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.company = company;
-
+        this.active = active;
     }
 
     public Car(){
@@ -62,5 +65,13 @@ public class Car {
 
     public void setCompany(Company company) {
         this.company = company;
+    }
+
+    public boolean isActive() {
+        return active;
+    }
+
+    public void setActive(boolean active) {
+        this.active = active;
     }
 }

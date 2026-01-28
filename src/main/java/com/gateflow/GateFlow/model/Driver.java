@@ -1,9 +1,9 @@
-package com.gateflow.GateFlow;
+package com.gateflow.GateFlow.model;
 
 
+import com.gateflow.GateFlow.model.Company;
 import jakarta.persistence.*;
 
-import java.util.List;
 @Entity
 public class Driver {
     @Id

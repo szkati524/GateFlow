@@ -1,6 +1,6 @@
 package com.gateflow.GateFlow.repository;
 
-import com.gateflow.GateFlow.Car;
+import com.gateflow.GateFlow.model.Car;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 

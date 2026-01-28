@@ -1,6 +1,7 @@
-package com.gateflow.GateFlow;
+package com.gateflow.GateFlow.model;
 
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 
 import java.util.List;
@@ -12,8 +13,10 @@ private Long id;
 
     private String name;
     @OneToMany(mappedBy = "company")
+    @JsonIgnore
     private List<Driver> driverList;
     @OneToMany(mappedBy = "company")
+    @JsonIgnore
     private List<Car> cars;
 
     public Company(Long id,String name, List<Driver> driverList, List<Car> cars) {

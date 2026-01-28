@@ -1,7 +1,6 @@
 package com.gateflow.GateFlow.service;
 
-import com.gateflow.GateFlow.Company;
-import com.gateflow.GateFlow.Driver;
+import com.gateflow.GateFlow.model.Driver;
 import com.gateflow.GateFlow.repository.DriverRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -26,7 +25,7 @@ public class DriverService {
     public List<Driver> findAllDrivers(){
         return driverRepository.findAll();
     }
-    public Driver findByFullName(String name,String surname){
+    public Optional<Driver> findByFullName(String name,String surname){
         return driverRepository.findByNameAndSurnameIgnoreCase(name,surname);
     }
     public void deleteById(Long id){

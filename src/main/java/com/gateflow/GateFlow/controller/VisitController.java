@@ -1,7 +1,13 @@
 package com.gateflow.GateFlow.controller;
 
-import com.gateflow.GateFlow.Visit;
+import com.gateflow.GateFlow.dto.EntityRequestDTO;
+import com.gateflow.GateFlow.model.Car;
+import com.gateflow.GateFlow.model.Company;
+import com.gateflow.GateFlow.model.Driver;
+import com.gateflow.GateFlow.model.Visit;
+import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
+import com.gateflow.GateFlow.service.CompanyService;
 import com.gateflow.GateFlow.service.VisitService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -9,9 +15,6 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Optional;
-import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -21,10 +24,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class VisitController {
     private final VisitService visitService;
     private final VisitRepository visitRepository;
+    private final CompanyService companyService;
+    private final CompanyRepository companyRepository;
 
-    public VisitController(VisitService visitService, VisitRepository visitRepository) {
+    public VisitController(VisitService visitService, VisitRepository visitRepository, CompanyService companyService, CompanyRepository companyRepository) {
         this.visitService = visitService;
         this.visitRepository = visitRepository;
+        this.companyService = companyService;
+        this.companyRepository = companyRepository;
     }
 
     @GetMapping("/test")
@@ -32,17 +39,11 @@ public class VisitController {
         return "GateFlow gotowy na pierwszy wjazd";
     }
     @PostMapping("/entry")
-    public EntityModel<Visit> registryEntry(@RequestBody Visit inputData){
-     Visit newVisit = Visit.builder()
-             .driver(inputData.getDriver())
-             .car(inputData.getCar())
-             .company(inputData.getCompany())
-             .entryCargo(inputData.getEntryCargo())
-             .entryTime(LocalDateTime.now())
-             .build();
-     Visit savedVisit = visitService.addVisit(newVisit);
-     return EntityModel.of(savedVisit,linkTo(methodOn(VisitController.class).showVisit(savedVisit.getId())).withSelfRel(),
-     linkTo(methodOn(VisitController.class)).withRel("all-visits"));
+    public EntityModel<Visit> registryEntry(@RequestBody EntityRequestDTO request){
+     Visit savedVisit = visitService.registryEntry(request);
+     return EntityModel.of(savedVisit,
+             linkTo(methodOn(VisitController.class).showVisit(savedVisit.getId())).withSelfRel(),
+        linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all-visits"));
 
     }
     @GetMapping("/{id}")

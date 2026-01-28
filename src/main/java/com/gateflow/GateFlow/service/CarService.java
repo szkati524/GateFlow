@@ -1,6 +1,6 @@
 package com.gateflow.GateFlow.service;
 
-import com.gateflow.GateFlow.Car;
+import com.gateflow.GateFlow.model.Car;
 import com.gateflow.GateFlow.repository.CarRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
