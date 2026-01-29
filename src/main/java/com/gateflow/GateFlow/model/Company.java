@@ -2,10 +2,14 @@ package com.gateflow.GateFlow.model;
 
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
 import java.util.List;
+import java.util.Objects;
+
 @Entity
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Company {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -59,6 +63,29 @@ private Long id;
 
     public void setCars(List<Car> cars) {
         this.cars = cars;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        Company company = (Company) o;
+        return Objects.equals(id, company.id) && Objects.equals(name, company.name) && Objects.equals(driverList, company.driverList) && Objects.equals(cars, company.cars);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, driverList, cars);
+    }
+
+    @Override
+    public String toString() {
+        return "Company{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", driverList=" + driverList +
+                ", cars=" + cars +
+                '}';
     }
 }
 

@@ -1,7 +1,9 @@
 package com.gateflow.GateFlow.controller;
 
 import com.gateflow.GateFlow.model.Car;
+import com.gateflow.GateFlow.model.Company;
 import com.gateflow.GateFlow.repository.CarRepository;
+import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.service.CarService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
@@ -18,10 +20,12 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class CarController {
     private final CarRepository carRepository;
     private final CarService carService;
+    private final CompanyRepository companyRepository;
 
-    public CarController(CarRepository carRepository, CarService carService) {
+    public CarController(CarRepository carRepository, CarService carService, CompanyRepository companyRepository) {
         this.carRepository = carRepository;
         this.carService = carService;
+        this.companyRepository = companyRepository;
     }
 
     @GetMapping("/{registrationNumber}")
@@ -47,24 +51,32 @@ public class CarController {
         model.add(linkTo(methodOn(CarController.class).getAllCars()).withRel("all-cars"));
         return model;
     }
-    @PutMapping
+    @PutMapping("{id}")
     public EntityModel<Car> updateCar(@PathVariable Long id, @RequestBody Car carRequest){
         return carRepository.findById(id)
                 .map(carExisting -> {
-                    carExisting.setBrand(carRequest.getBrand());
-                    carExisting.setCompany(carRequest.getCompany());
-                    carExisting.setRegistrationNumber(carRequest.getRegistrationNumber());
-                            Car updatedCar = carRepository.save(carExisting);
-                            return EntityModel.of(updatedCar,
-                                    linkTo(methodOn(CarController.class).showCar(updatedCar.getId())).withSelfRel(),
-                    linkTo(methodOn(CarController.class).getAllCars()).withRel("all-cars"));
+
+                    if (carRequest.getRegistrationNumber() != null) {
+                        carExisting.setRegistrationNumber(carRequest.getRegistrationNumber());
+                    }
+                    if (carRequest.getBrand() != null) {
+                        carExisting.setBrand(carRequest.getBrand());
+                    }
 
 
+                    if (carRequest.getCompany() != null && carRequest.getCompany().getName() != null) {
+                        Company company = companyRepository.findByNameIgnoreCase(carRequest.getCompany().getName())
+                                .orElseGet(() -> companyRepository.save(carRequest.getCompany()));
+                        carExisting.setCompany(company);
+                    }
+
+                    Car updatedCar = carRepository.save(carExisting);
+                    return EntityModel.of(updatedCar,
+                            linkTo(methodOn(CarController.class).showCar(updatedCar.getId())).withSelfRel());
                 })
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono auta o ID " + id));
-
-
     }
+
     @PostMapping("/addcar")
     public EntityModel<Car> addCar(@RequestBody Car car){
        Car savedCar =  carRepository.save(car);
