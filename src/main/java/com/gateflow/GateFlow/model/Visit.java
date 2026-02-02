@@ -164,6 +164,12 @@ public class Visit {
     public void setExitCargo(String exitCargo) {
         this.exitCargo = exitCargo;
     }
+    public long getDurationInMinutes(){
+        if (entryTime != null && exitTime != null){
+            return java.time.Duration.between(entryTime,exitTime).toMinutes();
+        }
+        return 0;
+    }
 
 }
 

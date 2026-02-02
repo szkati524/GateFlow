@@ -91,5 +91,12 @@ return CollectionModel.of(currentVisits,linkTo(methodOn(VisitController.class).g
 
 
         }
+        @PutMapping("/exit/{registrationNumber}")
+    public EntityModel<Visit> registerExit(@PathVariable String registrationNumber,@RequestParam(required = false) String exitCargo){
+        Visit updatedVisit = visitService.registerExit(registrationNumber,exitCargo);
+        return EntityModel.of(updatedVisit,
+                linkTo(methodOn(VisitController.class).showVisit(updatedVisit.getId())).withSelfRel(),
+                linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all-visits"));
+        }
     }
 

@@ -51,7 +51,7 @@ public class CarController {
         model.add(linkTo(methodOn(CarController.class).getAllCars()).withRel("all-cars"));
         return model;
     }
-    @PutMapping("{id}")
+    @PutMapping("/{id}")
     public EntityModel<Car> updateCar(@PathVariable Long id, @RequestBody Car carRequest){
         return carRepository.findById(id)
                 .map(carExisting -> {

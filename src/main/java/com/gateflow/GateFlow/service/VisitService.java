@@ -79,6 +79,15 @@ public class VisitService {
 
         return visitRepository.save(visit);
     }
+    public Visit registerExit(String registrationNumber,String exitCargo){
+    Visit visit = visitRepository.findFirstByCarRegistrationNumberAndExitTimeIsNullOrderByEntryTimeDesc(registrationNumber)
+            .orElseThrow(() -> new RuntimeException("Nie znaleziono aktywnej wizyty dla pojazdu " + registrationNumber) );
+
+    visit.setExitTime(LocalDateTime.now());
+    visit.setExitCargo(exitCargo);
+    return visitRepository.save(visit);
+    }
+
 
     }
 

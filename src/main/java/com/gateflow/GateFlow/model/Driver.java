@@ -4,11 +4,14 @@ package com.gateflow.GateFlow.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.gateflow.GateFlow.model.Company;
 import jakarta.persistence.*;
+import org.hibernate.annotations.SoftDelete;
+import org.hibernate.annotations.SoftDeleteType;
 
 import java.util.Objects;
 
 @Entity
 @JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+@SoftDelete(columnName = "active",strategy = SoftDeleteType.ACTIVE)
 public class Driver {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,6 +32,14 @@ public class Driver {
     }
     public Driver(){
 
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {
