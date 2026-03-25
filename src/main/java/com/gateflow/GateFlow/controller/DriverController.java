@@ -1,8 +1,9 @@
 package com.gateflow.GateFlow.controller;
 
+import com.gateflow.GateFlow.assembler.DriverModelAssembler;
+import com.gateflow.GateFlow.dto.DriverDto;
 import com.gateflow.GateFlow.model.Driver;
 import com.gateflow.GateFlow.repository.DriverRepository;
-import com.gateflow.GateFlow.service.DriverService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.http.ResponseEntity;
@@ -19,56 +20,50 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class DriverController {
 
     private final DriverRepository driverRepository;
-    private final DriverService driverService;
+    private final DriverModelAssembler assembler;
 
-    public DriverController(DriverRepository driverRepository, DriverService driverService) {
+    public DriverController(DriverRepository driverRepository, DriverModelAssembler assembler) {
         this.driverRepository = driverRepository;
-        this.driverService = driverService;
+        this.assembler = assembler;
     }
+
 
     @GetMapping("/{id}")
-    public EntityModel<Driver> showDriver(@PathVariable Long id){
-        Driver driver = driverRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono kierowcy o podanym ID " + id));
+    public DriverDto showDriver(@PathVariable Long id){
+        return driverRepository.findById(id)
+                .map(assembler::toModel)
+                .orElseThrow(() -> new RuntimeException("nie znaleziono kierowcy o ID: " + id)  );
 
-      return   EntityModel.of(driver,linkTo(methodOn(DriverController.class).showDriver(id)).withSelfRel(),
-              linkTo(methodOn(DriverController.class).getAllDrivers()).withRel("all-drivers")   );
     }
     @GetMapping
-    public CollectionModel<EntityModel<Driver>> getAllDrivers(){
-        List<EntityModel<Driver>> drivers = driverRepository.findAll().stream()
-                .map(d -> EntityModel.of(d,
-                        linkTo(methodOn(DriverController.class).showDriver(d.getId())).withSelfRel()))
-                        .collect(Collectors.toList());
-                        return CollectionModel.of(drivers,linkTo(methodOn(DriverController.class).getAllDrivers()).withRel("all-drivers"));
+    public CollectionModel<DriverDto> getAllDrivers(){
+        return assembler.toCollectionModel(driverRepository.findAll());
 
     }
     @PutMapping("/{id}")
-    public EntityModel<Driver> updateDriver(@PathVariable Long id,@RequestBody Driver requuestDriver){
-        return driverRepository.findById(id)
+    public DriverDto updateDriver(@PathVariable Long id,@RequestBody Driver requestDriver){
+       Driver updatedDriver = driverRepository.findById(id)
                 .map(driverExisting -> {
-                    if (requuestDriver.getName() != null){
-                        driverExisting.setName(driverExisting.getName());
+                    if (requestDriver.getName() != null){
+                        driverExisting.setName(requestDriver.getName());
                     }
-                    if (requuestDriver.getSurname() != null){
-                        driverExisting.setSurname(driverExisting.getSurname());
+                    if (requestDriver.getSurname() != null){
+                        driverExisting.setSurname(requestDriver.getSurname());
                     }
-                    if (requuestDriver.getCompany() != null){
-                        driverExisting.setCompany( driverExisting.getCompany());
+                    if (requestDriver.getCompany() != null){
+                        driverExisting.setCompany( requestDriver.getCompany());
                     }
-                    Driver updatedDriver = driverRepository.save(driverExisting);
-                    return EntityModel.of(updatedDriver,linkTo(methodOn(DriverController.class).showDriver(id)).withSelfRel(),
-                            linkTo(methodOn(DriverController.class).getAllDrivers()).withRel("all-drivers"));
+                  return driverRepository.save(driverExisting);
                 })
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono kierowcy o danym ID " + id) );
+       return assembler.toModel(updatedDriver);
     }
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteDriver(@PathVariable Long id){
         return driverRepository.findById(id)
                 .map(driver -> {
                     driverRepository.delete(driver);
-                    var link = linkTo(methodOn(DriverController.class).getAllDrivers()).withRel("all-drivers");
-                    return ResponseEntity.ok(CollectionModel.empty(link));
+                   return ResponseEntity.noContent().build();
                 })
                 .orElse(ResponseEntity.notFound().build());
     }

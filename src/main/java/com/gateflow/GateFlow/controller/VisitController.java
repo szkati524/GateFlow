@@ -1,16 +1,15 @@
 package com.gateflow.GateFlow.controller;
 
+import com.gateflow.GateFlow.assembler.VisitModelAssembler;
 import com.gateflow.GateFlow.dto.EntityRequestDTO;
-import com.gateflow.GateFlow.model.Car;
-import com.gateflow.GateFlow.model.Company;
-import com.gateflow.GateFlow.model.Driver;
+import com.gateflow.GateFlow.dto.VisitDto;
 import com.gateflow.GateFlow.model.Visit;
-import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
-import com.gateflow.GateFlow.service.CompanyService;
 import com.gateflow.GateFlow.service.VisitService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
@@ -24,79 +23,65 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class VisitController {
     private final VisitService visitService;
     private final VisitRepository visitRepository;
-    private final CompanyService companyService;
-    private final CompanyRepository companyRepository;
+    private final VisitModelAssembler assembler;
 
-    public VisitController(VisitService visitService, VisitRepository visitRepository, CompanyService companyService, CompanyRepository companyRepository) {
+    public VisitController(VisitService visitService, VisitRepository visitRepository, VisitModelAssembler assembler) {
         this.visitService = visitService;
         this.visitRepository = visitRepository;
-        this.companyService = companyService;
-        this.companyRepository = companyRepository;
+        this.assembler = assembler;
     }
 
     @GetMapping("/test")
-    public String test(){
+    public String test() {
         return "GateFlow gotowy na pierwszy wjazd";
     }
+
     @PostMapping("/entry")
-    public EntityModel<Visit> registryEntry(@RequestBody EntityRequestDTO request){
-     Visit savedVisit = visitService.registryEntry(request);
-     return EntityModel.of(savedVisit,
-             linkTo(methodOn(VisitController.class).showVisit(savedVisit.getId())).withSelfRel(),
-        linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all-visits"));
+    public ResponseEntity<VisitDto> registryEntry(@RequestBody EntityRequestDTO request) {
+        Visit savedVisit = visitService.registryEntry(request);
+        VisitDto dto = assembler.toModel(savedVisit);
+        return ResponseEntity.created(dto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(dto);
 
     }
+
     @GetMapping("/{id}")
-    public EntityModel<Visit> showVisit(@PathVariable Long id){
-        Visit visit = visitRepository.findById(id).orElseThrow();
-        EntityModel<Visit> model = EntityModel.of(visit);
-        model.add(linkTo(methodOn(VisitController.class).showVisit(id)).withSelfRel());
-        model.add(linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all-visits"));
-        return model;
-
-    }
-    @GetMapping
-    public CollectionModel<EntityModel<Visit>> getAllVisits(){
-        List<EntityModel<Visit>> visits = visitRepository.findAll().stream()
-                .map(visit -> EntityModel.of(visit,
-                        linkTo(methodOn(VisitController.class).showVisit(visit.getId())).withSelfRel())).toList();
-        return CollectionModel.of(visits,linkTo(methodOn(VisitController.class).getAllVisits()).withSelfRel());
-    }
-    @PutMapping("/{id}/exit")
-    public EntityModel<Visit> exitVisit(@PathVariable Long id, @RequestBody String exitCargo){
+    public VisitDto showVisit(@PathVariable Long id) {
         return visitRepository.findById(id)
+                .map(assembler::toModel)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono wizyty o tym id "));
+    }
+
+    @GetMapping
+    public CollectionModel<VisitDto> getAllVisits() {
+        return assembler.toCollectionModel(visitRepository.findAll());
+    }
+
+    @PutMapping("/{id}/exit")
+    public VisitDto exitVisit(@PathVariable Long id, @RequestBody String exitCargo) {
+        Visit visit =  visitRepository.findById(id)
                 .map(v -> {
                     v.setExitCargo(exitCargo);
                     v.setExitTime(LocalDateTime.now());
-                    Visit updatedVisit = visitService.addVisit(v);
-                    return EntityModel.of(updatedVisit,linkTo(methodOn(VisitController.class).showVisit(id)).withSelfRel(),
-                    linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all_visits"));
-
-
+                   return visitService.addVisit(v);
                 })
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono takiego wjazdu"));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono wjazdu o ID: " + id));
+        return assembler.toModel(visit);
 
 
-
-
-        }
-        @GetMapping("on-site")
-    public CollectionModel<EntityModel<Visit>> getVisitsOnSite(){
-          List<EntityModel<Visit>> currentVisits = visitRepository.findByExitTimeIsNull().stream()
-                  .filter(visit -> visit.getExitTime() == null)
-                  .map(visit -> EntityModel.of(visit,linkTo(methodOn(VisitController.class).showVisit(visit.getId())).withSelfRel())).toList();
-return CollectionModel.of(currentVisits,linkTo(methodOn(VisitController.class).getVisitsOnSite()).withSelfRel());
-
-
-
-
-        }
-        @PutMapping("/exit/{registrationNumber}")
-    public EntityModel<Visit> registerExit(@PathVariable String registrationNumber,@RequestParam(required = false) String exitCargo){
-        Visit updatedVisit = visitService.registerExit(registrationNumber,exitCargo);
-        return EntityModel.of(updatedVisit,
-                linkTo(methodOn(VisitController.class).showVisit(updatedVisit.getId())).withSelfRel(),
-                linkTo(methodOn(VisitController.class).getAllVisits()).withRel("all-visits"));
-        }
     }
+
+    @GetMapping("/on-site")
+    public CollectionModel<VisitDto> getVisitsOnSite() {
+        List<Visit> activeVisits = visitRepository.findByExitTimeIsNull();
+        return assembler.toCollectionModel(activeVisits);
+
+
+    }
+
+    @PutMapping("/exit/{registrationNumber}")
+    public VisitDto registerExit(@PathVariable String registrationNumber, @RequestParam(required = false) String exitCargo) {
+        Visit updatedVisit = visitService.registerExit(registrationNumber, exitCargo);
+        return assembler.toModel(updatedVisit);
+    }
+}
 

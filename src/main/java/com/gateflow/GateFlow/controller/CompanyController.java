@@ -1,10 +1,13 @@
 package com.gateflow.GateFlow.controller;
 
+import com.gateflow.GateFlow.assembler.CompanyModelAssembler;
+import com.gateflow.GateFlow.assembler.VisitModelAssembler;
+import com.gateflow.GateFlow.dto.CompanyDto;
+import com.gateflow.GateFlow.dto.VisitDto;
 import com.gateflow.GateFlow.model.Company;
 import com.gateflow.GateFlow.model.Visit;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
-import com.gateflow.GateFlow.service.CompanyService;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.web.bind.annotation.*;
@@ -18,58 +21,48 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RestController
 @RequestMapping("companies")
 public class CompanyController {
-    private final CompanyService companyService;
-    private final CompanyRepository companyRepository;
-    private final VisitRepository visitRepository;
+  private final CompanyRepository companyRepository;
+  private VisitRepository visitRepository;
+  private CompanyModelAssembler companyAssembler;
+  private VisitModelAssembler visitAssembler;
 
-    public CompanyController(CompanyService companyService, CompanyRepository companyRepository, VisitRepository visitRepository) {
-        this.companyService = companyService;
+    public CompanyController(CompanyRepository companyRepository, VisitRepository visitRepository, CompanyModelAssembler companyAssembler, VisitModelAssembler visitAssembler) {
         this.companyRepository = companyRepository;
         this.visitRepository = visitRepository;
+        this.companyAssembler = companyAssembler;
+        this.visitAssembler = visitAssembler;
     }
-@GetMapping("/{id}")
-public EntityModel<Company> showCompany(@PathVariable Long id){
-        Company company = companyRepository.findById(id).orElseThrow(() -> new RuntimeException("Nie znaleziono takiej firmy"));
-       EntityModel model =  EntityModel.of(company,
-                linkTo(methodOn(CompanyController.class).showCompany(company.getId())).withSelfRel());
-    linkTo(methodOn(CompanyController.class).getAllCompanies()).withRel("all-companies");
-        return model;
+
+
+    @GetMapping("/{id}")
+public CompanyDto showCompany(@PathVariable Long id){
+        return companyRepository.findById(id)
+                .map(companyAssembler::toModel)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o ID: " + id) );
 }
     @GetMapping
-public CollectionModel<EntityModel<Company>> getAllCompanies (){
-        List<EntityModel<Company>> companies = companyRepository.findAll().stream()
-                .map(c -> EntityModel.of(c,
-                        linkTo(methodOn(CompanyController.class).showCompany(c.getId())).withSelfRel()))
-                        .collect(Collectors.toList());
-               return CollectionModel.of(companies,linkTo(methodOn(CompanyController.class).getAllCompanies()).withSelfRel());
+public CollectionModel<CompanyDto> getAllCompanies (){
+        return companyAssembler.toCollectionModel(companyRepository.findAll());
     }
     @PutMapping("/{id}")
-    public EntityModel<Company> updateCompany(@PathVariable Long id,@RequestBody Company companyRequest){
-        return companyRepository.findById(id)
+    public CompanyDto updateCompany(@PathVariable Long id,@RequestBody Company companyRequest){
+        Company updatedCompany = companyRepository.findById(id)
                 .map(companyExisting -> {
                     if (companyRequest.getName() != null) {
                         companyExisting.setName(companyRequest.getName());
                     }
-
-                    Company updatedCompany = companyRepository.save(companyExisting);
-                    return EntityModel.of(updatedCompany,linkTo(methodOn(CompanyController.class).showCompany(id)).withSelfRel(),
-                            linkTo(methodOn(CompanyController.class).getAllCompanies()).withRel("all-companies"));
-
+                    return companyRepository.save(companyExisting);
                 })
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o podanym Id" + id)   );
+        return companyAssembler.toModel(updatedCompany);
 
     }
     @GetMapping("/{id}/history")
-    public CollectionModel<EntityModel<Visit>> showVisits(@PathVariable Long id){
-       Company company = companyRepository.findById(id)
-               .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o ID " + id));
-       List<EntityModel<Visit>> visits = visitRepository.findByCompanyId(id).stream()
-               .map(visit -> EntityModel.of(visit,
-                       linkTo(methodOn(VisitController.class).showVisit(visit.getId())).withSelfRel()))
-               .collect(Collectors.toList());
-       return CollectionModel.of(visits,
-               linkTo(methodOn(CompanyController.class).showVisits(id)).withSelfRel(),
-       linkTo(methodOn(CompanyController.class).getAllCompanies()).withRel("all-companies"));
+    public CollectionModel<VisitDto> showVisits(@PathVariable Long id){
+      if(!companyRepository.existsById(id)){
+          throw new RuntimeException("Nie znaleziono firmy o ID: " + id);
+      }
+      return visitAssembler.toCollectionModel(visitRepository.findByCompanyId(id));
     }
 
 }

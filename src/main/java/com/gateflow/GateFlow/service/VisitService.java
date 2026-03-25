@@ -79,6 +79,7 @@ public class VisitService {
 
         return visitRepository.save(visit);
     }
+    @Transactional
     public Visit registerExit(String registrationNumber,String exitCargo){
     Visit visit = visitRepository.findFirstByCarRegistrationNumberAndExitTimeIsNullOrderByEntryTimeDesc(registrationNumber)
             .orElseThrow(() -> new RuntimeException("Nie znaleziono aktywnej wizyty dla pojazdu " + registrationNumber) );

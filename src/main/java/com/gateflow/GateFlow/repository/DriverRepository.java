@@ -12,4 +12,5 @@ public interface DriverRepository extends JpaRepository<Driver,Long> {
     public Optional<Driver> findByNameAndSurnameIgnoreCase(String name, String surname);
     public List<Driver> findByCompanyNameIgnoreCase(String name);
     public List<Driver> findByCompanyId(Long id);
+
 }
