@@ -10,6 +10,7 @@ import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.DriverRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
 import jakarta.transaction.Transactional;
+import org.hibernate.metamodel.mapping.internal.VirtualIdEmbeddable;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -65,8 +66,17 @@ public class VisitService {
                 });
 
 
-        Driver finalDriver = driverRepository.findByNameAndSurnameIgnoreCase(request.getDriver().getName(), request.getDriver().getSurname())
-                .orElseGet(() -> driverRepository.save(request.getDriver()));
+        Driver finalDriver = driverRepository.findByNameAndSurnameIgnoreCase(
+                request.getDriver().getName(),
+                        request.getDriver().getSurname())
+                .map(existingDriver -> {
+                    existingDriver.setCompany(finalCompany);
+                    return driverRepository.save(existingDriver);
+                })
+                .orElseGet(() -> {
+                    request.getDriver().setCompany(finalCompany);
+                    return driverRepository.save(request.getDriver());
+                });
 
 
         Visit visit = Visit.builder()
@@ -86,6 +96,33 @@ public class VisitService {
 
     visit.setExitTime(LocalDateTime.now());
     visit.setExitCargo(exitCargo);
+    return visitRepository.save(visit);
+    }
+    @Transactional
+    public Visit registerExitById(Long id,String exitCargo) {
+        Visit visit = visitRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono wjazdu o ID " + id));
+        checkIfAlreadyExited(visit);
+        return completedVisit(visit, exitCargo);
+
+    }
+    @Transactional
+    public Visit registerExitByRegistration(String registrationNumber,String exitCargo){
+    Visit visit = visitRepository.findFirstByCarRegistrationNumberAndExitTimeIsNullOrderByEntryTimeDesc(registrationNumber)
+            .orElseThrow(() -> new RuntimeException("Brak aktywnej wizyty na terenie dla pojazdu: " + registrationNumber));
+  checkIfAlreadyExited(visit);
+    return completedVisit(visit,exitCargo);
+    }
+
+    private void checkIfAlreadyExited(Visit visit){
+    if (visit.getExitTime() != null){
+        throw new RuntimeException("ta wizyta została zakończona pomyślnie");
+    }
+    }
+
+    private Visit completedVisit(Visit visit,String cargo){
+    visit.setExitCargo(cargo);
+    visit.setExitTime(LocalDateTime.now());
     return visitRepository.save(visit);
     }
 

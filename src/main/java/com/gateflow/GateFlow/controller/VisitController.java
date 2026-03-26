@@ -19,7 +19,7 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("/visits")
+@RequestMapping("/api/visits")
 public class VisitController {
     private final VisitService visitService;
     private final VisitRepository visitRepository;
@@ -48,7 +48,7 @@ public class VisitController {
     public VisitDto showVisit(@PathVariable Long id) {
         return visitRepository.findById(id)
                 .map(assembler::toModel)
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono wizyty o tym id "));
+                .orElseThrow(() -> new RuntimeException("Nie znaleziono wizyty o ID: " + id));
     }
 
     @GetMapping
@@ -57,15 +57,9 @@ public class VisitController {
     }
 
     @PutMapping("/{id}/exit")
-    public VisitDto exitVisit(@PathVariable Long id, @RequestBody String exitCargo) {
-        Visit visit =  visitRepository.findById(id)
-                .map(v -> {
-                    v.setExitCargo(exitCargo);
-                    v.setExitTime(LocalDateTime.now());
-                   return visitService.addVisit(v);
-                })
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono wjazdu o ID: " + id));
-        return assembler.toModel(visit);
+        public VisitDto exitVisit(@PathVariable Long id, @RequestParam(required = false) String exitCargo) {
+        Visit updatedVisit = visitService.registerExitById(id,exitCargo);
+        return assembler.toModel(updatedVisit);
 
 
     }
@@ -80,7 +74,7 @@ public class VisitController {
 
     @PutMapping("/exit/{registrationNumber}")
     public VisitDto registerExit(@PathVariable String registrationNumber, @RequestParam(required = false) String exitCargo) {
-        Visit updatedVisit = visitService.registerExit(registrationNumber, exitCargo);
+        Visit updatedVisit = visitService.registerExitByRegistration(registrationNumber, exitCargo);
         return assembler.toModel(updatedVisit);
     }
 }

@@ -5,32 +5,40 @@ import com.gateflow.GateFlow.assembler.VisitModelAssembler;
 import com.gateflow.GateFlow.dto.CompanyDto;
 import com.gateflow.GateFlow.dto.VisitDto;
 import com.gateflow.GateFlow.model.Company;
-import com.gateflow.GateFlow.model.Visit;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
+import com.gateflow.GateFlow.service.CompanyService;
 import org.springframework.hateoas.CollectionModel;
-import org.springframework.hateoas.EntityModel;
+import org.springframework.hateoas.IanaLinkRelations;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
-import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @RestController
-@RequestMapping("companies")
+@RequestMapping("/api/companies")
 public class CompanyController {
+  private final CompanyService companyService;
   private final CompanyRepository companyRepository;
-  private VisitRepository visitRepository;
+  private final VisitRepository visitRepository;
   private CompanyModelAssembler companyAssembler;
   private VisitModelAssembler visitAssembler;
 
-    public CompanyController(CompanyRepository companyRepository, VisitRepository visitRepository, CompanyModelAssembler companyAssembler, VisitModelAssembler visitAssembler) {
+    public CompanyController(CompanyService companyService, CompanyRepository companyRepository, VisitRepository visitRepository, CompanyModelAssembler companyAssembler, VisitModelAssembler visitAssembler) {
+        this.companyService = companyService;
         this.companyRepository = companyRepository;
         this.visitRepository = visitRepository;
+
         this.companyAssembler = companyAssembler;
         this.visitAssembler = visitAssembler;
+    }
+
+    @PostMapping
+    public ResponseEntity<CompanyDto> addCompany(@RequestBody Company company){
+        Company savedCompany = companyService.addCompany(company);
+        CompanyDto dto = companyAssembler.toModel(savedCompany);
+        return ResponseEntity
+                .created(dto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(dto);
     }
 
 
@@ -46,15 +54,9 @@ public CollectionModel<CompanyDto> getAllCompanies (){
     }
     @PutMapping("/{id}")
     public CompanyDto updateCompany(@PathVariable Long id,@RequestBody Company companyRequest){
-        Company updatedCompany = companyRepository.findById(id)
-                .map(companyExisting -> {
-                    if (companyRequest.getName() != null) {
-                        companyExisting.setName(companyRequest.getName());
-                    }
-                    return companyRepository.save(companyExisting);
-                })
-                .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o podanym Id" + id)   );
+        Company updatedCompany = companyService.updatedCompany(id,companyRequest);
         return companyAssembler.toModel(updatedCompany);
+
 
     }
     @GetMapping("/{id}/history")
