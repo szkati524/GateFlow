@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 HELP.md
 target/
 .mvn/wrapper/maven-wrapper.jar
@@ -32,16 +31,3 @@ build/
 
 ### VS Code ###
 .vscode/
-=======
-# Foldery edytorów (wspólne dla całego projektu)
-.idea/
-.vscode/
-*.iml
-
-# Pliki systemowe
-Thumbs.db
-.DS_Store
-
-# Logi
-*.log
->>>>>>> 7ccb831 (added security, connect fronted with backend and did loginpage)
