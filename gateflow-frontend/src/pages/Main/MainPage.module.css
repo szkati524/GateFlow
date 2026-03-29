@@ -1,0 +1,171 @@
+.wrapper{
+    width:100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color:#e0e0e0;
+    overflow-x:hidden;
+    font-family: sans-serif;
+}
+.userBar{
+    position:fixed;
+    top:15px;
+    left:20px;
+    z-index:1001;
+    display:flex;
+    align-items: center;
+    gap:15px;
+
+}
+.userBar:hover{
+    transform: scale(1.1);
+}
+.iconBtn, .logoutBtn{
+background: none;
+border:none;
+color:white;
+font-size:14px;
+cursor:pointer;
+}
+.menuTrigger{
+    position:fixed;
+    top:15px;
+    left:20px;
+    z-index: 2000;
+    background: none;
+    border:none;
+    color:white;
+    font-size: 20px;
+    cursor:pointer;
+}
+.logoutBtn{
+    border:1px solid white;
+    padding:5px 12px;
+    border-radius:4px;
+}
+.logoutBtn:hover{
+    background-color: white;
+    color:orange;
+}
+.content {
+    padding:90px 40px 40px 40px;
+}
+.actionCenter{
+    display:flex;
+    justify-content: center;
+    margin-bottom: 30px;
+}
+.addEntryBtn{
+    background-color: #007bff;
+    color:white;
+    border:none;
+    padding:12px 24px;
+    border-radius:8px;
+    font-size:16px;
+    font-weight: bold;
+    cursor:pointer;
+}
+.addEntryBtn:hover{
+    background-color: #0056b3;
+}
+.listsContainer{
+    display:flex;
+    gap:30px;
+}
+.listSection{
+    flex:1;
+    background-color: #1e1e1e;
+    padding:20px;
+    border-radius: 12px;
+    border:1px solid #333;
+}
+.sectionHeader{
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+}
+.endStayBtn{
+    background-color: orange;
+    color:white;
+    border:none;
+    padding:8px 16px;
+    border-radius:6px;
+    font-weight: bold;
+    cursor:pointer;
+}
+.endStayBtn:disabled{
+    background-color: #555;
+    cursor:not-allowed;
+}
+.vehicleTable{
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size:14px;
+}
+.vehicleTable th, .vehicleTable td {
+    padding:12px;
+    border-bottom:1px solid #333;
+}
+.vehicleTable th {
+    color:#aaa;
+    font-weight: normal;
+    text-align: center;
+}
+.selectedRow{
+   background-color: rgba(255, 165, 0,0.1); 
+   border-left:3px solid orange;
+}
+.selectedRow strong {
+    color:orange;
+}
+.vehicleTable tbody tr:hover:not(.selectedRow){
+    background-color: rgba(255, 255, 255, 0.03);
+    cursor:pointer;
+}
+.editBtn{
+    background: none;
+    border:none;
+    cursor:pointer;
+}
+.sidebar {
+    position:fixed;
+    top:0;
+    left:-250px;
+    width:250px;
+    height:100%;
+    background-color: orange;
+    transition: 0.3s;
+    z-index: 1005;
+    padding-top: 80px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 5);
+}
+.sidebarOpen {
+    left:0 !important;
+}
+.contentShifted {
+    margin-left:250px;
+}
+.navMenu {
+    display: flex;
+    flex-direction: column;
+}
+.navMenu a {
+    padding:20px 30px;
+    text-decoration: none;
+    color:white;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255,255,255,0.2);
+
+}
+.navMenu a:hover{
+    background-color: #e68a00;
+}
+.rightActions{
+    position:fixed;
+    top:15px;
+    right:20px;
+    z-index:1001;
+    display:flex;
+    gap:15px;
+}
