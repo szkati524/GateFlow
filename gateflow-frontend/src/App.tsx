@@ -1,4 +1,4 @@
-import MainPage from "./pages/Main/MainPageTemp";
+import AddEntryPage from "./pages/AddEntry/AddEntryPage";
 import "./App.css";
 
 
@@ -6,7 +6,7 @@ import "./App.css";
 function App() {
 return (
   <div className="App">
-    <MainPage />
+    <AddEntryPage />
   </div>
 );
 }
