@@ -1,5 +1,6 @@
 package com.gateflow.GateFlow.service;
 
+import com.gateflow.GateFlow.dto.CompanyDto;
 import com.gateflow.GateFlow.model.Company;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
@@ -20,12 +21,14 @@ public class CompanyService {
     this.visitRepository = visitRepository;
 }
 @Transactional
-    public Company addCompany(Company company){
-    companyRepository.findByNameIgnoreCase(company.getName())
+    public Company addCompany(CompanyDto dto){
+    companyRepository.findByNameIgnoreCase(dto.getName())
             .ifPresent(existing -> {
-                throw new RuntimeException("Firma o nazwie " + company.getName() + " istnieje");
+                throw new RuntimeException("Firma o nazwie " + dto.getName() + " istnieje");
             });
-return companyRepository.save(company);
+    Company newCompany = new Company();
+    newCompany.setName(dto.getName());
+return companyRepository.save(newCompany);
     }
     public List<Company> findAllCompany(){
     return companyRepository.findAll();

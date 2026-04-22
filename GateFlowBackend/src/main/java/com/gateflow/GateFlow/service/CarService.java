@@ -1,5 +1,6 @@
 package com.gateflow.GateFlow.service;
 
+import com.gateflow.GateFlow.dto.CarDto;
 import com.gateflow.GateFlow.model.Car;
 import com.gateflow.GateFlow.model.Company;
 import com.gateflow.GateFlow.repository.CarRepository;
@@ -21,8 +22,20 @@ public class CarService {
     this.companyRepository = companyRepository;
 }
 
-    public void addCar(Car car){
-        carRepository.save(car);
+    public Car addCar(CarDto dto){
+       Car car = new Car();
+       car.setRegistrationNumber(dto.getRegistrationNumber());
+       car.setBrand(dto.getBrand());
+       if (dto.getCompanyName() != null ){
+           Company company = companyRepository.findByNameIgnoreCase(dto.getCompanyName())
+                   .orElseGet(() -> {
+                       Company newCompany = new Company();
+                              newCompany.setName(dto.getCompanyName());
+                              return companyRepository.save(newCompany);
+                   });
+           car.setCompany(company);
+       }
+       return carRepository.save(car);
     }
     public List<Car> findAll(){
         return carRepository.findAll();
@@ -46,18 +59,22 @@ public class CarService {
     return carRepository.findByCompanyNameIgnoreCase(name);
     }
     @Transactional
-    public Car updatedCar(Long id,Car carRequest){
+    public Car updatedCar(Long id,CarDto requestDto){
     return carRepository.findById(id)
             .map(carExisting -> {
-                if (carRequest.getRegistrationNumber() != null){
-                    carExisting.setRegistrationNumber(carRequest.getRegistrationNumber());
+                if (requestDto.getRegistrationNumber() != null){
+                    carExisting.setRegistrationNumber(requestDto.getRegistrationNumber());
                 }
-                if (carRequest.getBrand() != null){
-                    carExisting.setBrand(carRequest.getBrand());
+                if (requestDto.getBrand() != null){
+                    carExisting.setBrand(requestDto.getBrand());
                 }
-                if (carRequest.getCompany() != null && carRequest.getCompany().getName() != null){
-                    Company company = companyRepository.findByNameIgnoreCase(carRequest.getCompany().getName())
-                            .orElseGet(() -> companyRepository.save(carRequest.getCompany()));
+                if (requestDto.getCompanyName() != null && !requestDto.getCompanyName().isBlank()){
+                    Company company = companyRepository.findByNameIgnoreCase(requestDto.getCompanyName())
+                            .orElseGet(() -> {
+                                Company newCompany = new Company();
+                                newCompany.setName(requestDto.getCompanyName());
+                                return companyRepository.save(newCompany);
+                            });
                     carExisting.setCompany(company);
                 }
                 return carRepository.save(carExisting);

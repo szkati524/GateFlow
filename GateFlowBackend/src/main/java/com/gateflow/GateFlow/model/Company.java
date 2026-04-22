@@ -5,11 +5,12 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
 @Entity
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
+
 public class Company {
 @Id
 @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -17,14 +18,11 @@ private Long id;
 
     private String name;
     @OneToMany(mappedBy = "company")
-    @JsonIgnore
-    private List<Driver> driverList;
+    private List<Driver> driverList = new ArrayList<>();
     @OneToMany(mappedBy = "company")
-    @JsonIgnore
-    private List<Car> cars;
+    private List<Car> cars = new ArrayList<>();
 
-    public Company(Long id,String name, List<Driver> driverList, List<Car> cars) {
-        this.id = id;
+    public Company(String name, List<Driver> driverList, List<Car> cars) {
         this.name = name;
         this.driverList = driverList;
         this.cars = cars;

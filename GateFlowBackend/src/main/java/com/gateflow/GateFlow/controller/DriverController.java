@@ -17,14 +17,11 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping("/api/drivers")
 public class DriverController {
 
-    private final DriverRepository driverRepository;
-    private final CompanyRepository companyRepository;
+
     private final DriverModelAssembler assembler;
     private final DriverService driverService;
 
-    public DriverController(DriverRepository driverRepository, CompanyRepository companyRepository, DriverModelAssembler assembler, DriverService driverService) {
-        this.driverRepository = driverRepository;
-        this.companyRepository = companyRepository;
+    public DriverController( DriverModelAssembler assembler, DriverService driverService) {
         this.assembler = assembler;
         this.driverService = driverService;
     }
@@ -32,34 +29,32 @@ public class DriverController {
 
     @GetMapping("/{id}")
     public DriverDto showDriver(@PathVariable Long id){
-        return driverRepository.findById(id)
-                .map(assembler::toModel)
-                .orElseThrow(() -> new RuntimeException("nie znaleziono kierowcy o ID: " + id)  );
+       return driverService.findById(id)
+               .map(assembler::toModel)
+               .orElseThrow(() -> new RuntimeException("Nie znaleziono kierowcy o Id " + id)    );
+
 
     }
     @PostMapping
-    public ResponseEntity<DriverDto> addDriver(@RequestBody Driver driver){
-        Driver createdDriver = driverRepository.save(driver);
-        DriverDto dto = assembler.toModel(createdDriver);
-        return ResponseEntity.created(dto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(dto);
+    public ResponseEntity<DriverDto> addDriver(@RequestBody DriverDto driverDto){
+        Driver createdDriver = driverService.addDriver(driverDto    );
+        DriverDto model = assembler.toModel(createdDriver);
+        return ResponseEntity.created(model.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(model);
     }
     @GetMapping
     public CollectionModel<DriverDto> getAllDrivers(){
-        return assembler.toCollectionModel(driverRepository.findAll());
+        return assembler.toCollectionModel(driverService.findAllDrivers());
 
     }
     @PutMapping("/{id}")
-    public DriverDto updateDriver(@PathVariable Long id,@RequestBody Driver requestDriver){
-       Driver updatedDriver = driverService.updateDriver(id,requestDriver);
+    public DriverDto updateDriver(@PathVariable Long id,@RequestBody DriverDto requestDto){
+       Driver updatedDriver = driverService.updateDriver(id,requestDto);
      return assembler.toModel(updatedDriver);
     }
     @DeleteMapping("/{id}")
-    public ResponseEntity<?> deleteDriver(@PathVariable Long id){
-        return driverRepository.findById(id)
-                .map(driver -> {
-                    driverRepository.delete(driver);
-                   return ResponseEntity.noContent().build();
-                })
-                .orElse(ResponseEntity.notFound().build());
+    public ResponseEntity<?> deleteDriver(@PathVariable Long id) {
+        driverService.deleteById(id);
+        return ResponseEntity.noContent().build();
     }
+
 }

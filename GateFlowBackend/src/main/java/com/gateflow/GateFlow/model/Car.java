@@ -8,8 +8,6 @@ import org.hibernate.annotations.SoftDeleteType;
 import java.util.Objects;
 
 @Entity
-@SoftDelete(columnName = "active",strategy = SoftDeleteType.ACTIVE)
-@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class Car {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -25,8 +23,7 @@ public class Car {
     private boolean active = true;
 
 
-    public Car(Long id, String registrationNumber, String brand, Company company, boolean active) {
-        this.id = id;
+    public Car( String registrationNumber, String brand, Company company, boolean active) {
         this.registrationNumber = registrationNumber;
         this.brand = brand;
         this.company = company;

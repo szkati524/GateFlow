@@ -19,23 +19,19 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 @RequestMapping("/api/companies")
 public class CompanyController {
   private final CompanyService companyService;
-  private final CompanyRepository companyRepository;
-  private final VisitRepository visitRepository;
   private CompanyModelAssembler companyAssembler;
   private VisitModelAssembler visitAssembler;
 
-    public CompanyController(CompanyService companyService, CompanyRepository companyRepository, VisitRepository visitRepository, CompanyModelAssembler companyAssembler, VisitModelAssembler visitAssembler) {
+    public CompanyController(CompanyService companyService,  CompanyModelAssembler companyAssembler, VisitModelAssembler visitAssembler) {
         this.companyService = companyService;
-        this.companyRepository = companyRepository;
-        this.visitRepository = visitRepository;
 
         this.companyAssembler = companyAssembler;
         this.visitAssembler = visitAssembler;
     }
 
     @PostMapping
-    public ResponseEntity<CompanyDto> addCompany(@RequestBody Company company){
-        Company savedCompany = companyService.addCompany(company);
+    public ResponseEntity<CompanyDto> addCompany(@RequestBody CompanyDto companyDto){
+        Company savedCompany = companyService.addCompany(companyDto);
         CompanyDto dto = companyAssembler.toModel(savedCompany);
         return ResponseEntity
                 .created(dto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(dto);
