@@ -1,0 +1,210 @@
+
+.wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #e0e0e0;
+    overflow-x: hidden;
+    font-family: sans-serif;
+}
+
+
+.rightActions {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 1001;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.iconBtn, .logoutBtn {
+    background: none;
+    border: none;
+    color: white;
+    font-size: 14px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.iconBtn:hover {
+    transform: scale(1.1);
+}
+
+.logoutBtn {
+    border: 1px solid white;
+    padding: 5px 12px;
+    border-radius: 4px;
+    font-weight: bold;
+}
+
+.logoutBtn:hover {
+    background-color: white;
+    color: orange;
+}
+
+
+.menuTrigger {
+    position: fixed;
+    top: 15px;
+    left: 20px;
+    z-index: 2000;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 24px;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.menuTrigger:hover {
+    color: orange;
+}
+
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -250px;
+    width: 250px;
+    height: 100%;
+    background-color: orange;
+    transition: 0.3s;
+    z-index: 1005;
+    padding-top: 80px;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.5);
+}
+
+.sidebarOpen {
+    left: 0 !important;
+}
+
+.navMenu {
+    display: flex;
+    flex-direction: column;
+}
+
+.navMenu a {
+    padding: 20px 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.navMenu a:hover {
+    background-color: #e68a00;
+}
+
+
+.content {
+    padding: 90px 40px 40px 40px;
+    transition: 0.3s;
+}
+
+.contentShifted {
+    margin-left: 250px;
+}
+
+
+.listSection {
+    background-color: #1e1e1e;
+    padding: 30px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.listSection h2 {
+    margin-top: 0;
+    margin-bottom: 25px;
+    color: orange;
+    border-bottom: 2px solid orange;
+    display: inline-block;
+    padding-bottom: 5px;
+}
+
+
+.searchForm {
+    display: grid;
+
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-bottom: 30px;
+    padding: 20px;
+    background-color: #252525;
+    border-radius: 8px;
+    border: 1px solid #3a3a3a;
+}
+
+.searchForm input {
+    padding: 12px 15px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #1a1a1a;
+    color: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+.searchForm input:focus {
+    border-color: orange;
+    background-color: #202020;
+    outline: none;
+    box-shadow: 0 0 5px rgba(255, 165, 0, 0.3);
+}
+
+
+.addEntryBtn {
+    background-color: orange !important;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 6px;
+    font-size: 16px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+
+    justify-self: start; 
+    align-self: end;
+}
+
+.searchBtn:hover {
+    background-color: #e68a00;
+    transform: translateY(-1px);
+}
+
+.searchBtn:active {
+    transform: translateY(1px);
+}
+
+
+.vehicleTable {
+    width: 100%;
+    border-collapse: collapse;
+    text-align: center;
+    font-size: 14px;
+    margin-top: 10px;
+}
+
+.vehicleTable th, .vehicleTable td {
+    padding: 14px;
+    border-bottom: 1px solid #333;
+}
+
+.vehicleTable th {
+    color: #aaa;
+    font-weight: normal;
+    background-color: rgba(255,255,255,0.02);
+}
+
+.vehicleTable tbody tr:hover {
+    background-color: rgba(255, 255, 255, 0.03);
+}
+
+.vehicleTable strong {
+    color: orange;
+}

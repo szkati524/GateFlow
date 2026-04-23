@@ -6,12 +6,15 @@ import com.gateflow.GateFlow.dto.VisitDto;
 import com.gateflow.GateFlow.model.Visit;
 import com.gateflow.GateFlow.repository.VisitRepository;
 import com.gateflow.GateFlow.service.VisitService;
+import org.springframework.cglib.core.Local;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -22,19 +25,14 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 @RequestMapping("/api/visits")
 public class VisitController {
     private final VisitService visitService;
-    private final VisitRepository visitRepository;
     private final VisitModelAssembler assembler;
 
-    public VisitController(VisitService visitService, VisitRepository visitRepository, VisitModelAssembler assembler) {
+    public VisitController(VisitService visitService, VisitModelAssembler assembler) {
         this.visitService = visitService;
-        this.visitRepository = visitRepository;
         this.assembler = assembler;
     }
 
-    @GetMapping("/test")
-    public String test() {
-        return "GateFlow gotowy na pierwszy wjazd";
-    }
+
 
     @PostMapping("/entry")
     public ResponseEntity<VisitDto> registryEntry(@RequestBody EntityRequestDTO request) {
@@ -46,14 +44,14 @@ public class VisitController {
 
     @GetMapping("/{id}")
     public VisitDto showVisit(@PathVariable Long id) {
-        return visitRepository.findById(id)
+        return visitService.findVisitById(id)
                 .map(assembler::toModel)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono wizyty o ID: " + id));
     }
 
     @GetMapping
     public CollectionModel<VisitDto> getAllVisits() {
-        return assembler.toCollectionModel(visitRepository.findAll());
+        return assembler.toCollectionModel(visitService.findAllVisits());
     }
 
     @PutMapping("/{id}/exit")
@@ -66,7 +64,7 @@ public class VisitController {
 
     @GetMapping("/on-site")
     public CollectionModel<VisitDto> getVisitsOnSite() {
-        List<Visit> activeVisits = visitRepository.findByExitTimeIsNull();
+        List<Visit> activeVisits = visitService.findByExitTimeIsNull();
         return assembler.toCollectionModel(activeVisits);
 
 
@@ -76,6 +74,17 @@ public class VisitController {
     public VisitDto registerExit(@PathVariable String registrationNumber, @RequestParam(required = false) String exitCargo) {
         Visit updatedVisit = visitService.registerExitByRegistration(registrationNumber, exitCargo);
         return assembler.toModel(updatedVisit);
+    }
+    @GetMapping("/search")
+    public List<VisitDto> searchVisits(
+            @RequestParam(required = false) String reg,
+            @RequestParam(required = false) String name,
+            @RequestParam(required = false) String surname,
+            @RequestParam(required = false) String company,
+            @RequestParam(required = false) String brand,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate exitTime
+            ) {
+        return visitService.searchVisits(reg,name,surname,company,brand,exitTime);
     }
 }
 

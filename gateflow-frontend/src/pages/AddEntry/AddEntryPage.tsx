@@ -1,11 +1,12 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom"; 
 import Header from "../../components/Common/Header";
 import styles from './AddEntryPage.module.css';
 
 const AddEntryPage = () => {
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
-  
     const [formData, setFormData] = useState({
         registration: '',
         brand: '',
@@ -24,18 +25,47 @@ const AddEntryPage = () => {
         });
     };
 
-    const handleSubmit = (e: React.FormEvent) => {
-        e.preventDefault();
-        console.log("Dane do wysłania do Javy:", formData);
-        alert("Pojazd dodany pomyślnie!");
-     
+   const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    
+    const payload = {
+        registrationNumber: formData.registration,
+        brand: formData.brand,
+        companyName: formData.company,
+        driverName: formData.firstName,
+        driverSurname: formData.lastName,
+        cargo: formData.cargo
     };
+
+    try {
+        const response = await fetch('/api/visits/entry', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(payload), 
+        });
+
+        if (response.ok) {
+            alert("Pojazd dodany pomyślnie!");
+            navigate('/'); 
+        } else {
+           
+            const errorText = await response.text();
+            console.error("Błąd serwera:", errorText);
+            alert("Wystąpił błąd podczas dodawania wjazdu.");
+        }
+    } catch (error) {
+        console.error("Błąd połączenia:", error);
+        alert("Nie udało się połączyć z serwerem.");
+    }
+};
 
     return (
         <div className={styles.wrapper}>
             <Header />
 
-           
             <div className={styles.topControls}>
                 <button className={styles.menuTrigger} onClick={toggleSidebar}>
                     {isSidebarOpen ? '✕' : '☰'}
@@ -46,12 +76,12 @@ const AddEntryPage = () => {
                 </div>
             </div>
 
-            {/* Sidebar */}
+         
             <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
                 <nav className={styles.navMenu}>
-                    <a href="/dashboard">Ruch pojazdów</a>
-                    <a href="/add-entry">Dodaj wjazd</a>
-                    <a href="#Search">Wyszukaj</a>
+                    <a onClick={() => navigate("/")}>Ruch pojazdów</a>
+                    <a onClick={() => navigate("/add-entry")}>Dodaj wjazd</a>
+                    <a onClick={() => navigate("/search")} >Wyszukaj</a>
                     <a href="#Raport">Raporty</a>
                 </nav>
             </aside>

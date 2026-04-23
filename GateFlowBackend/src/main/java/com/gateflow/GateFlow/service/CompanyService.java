@@ -2,6 +2,7 @@ package com.gateflow.GateFlow.service;
 
 import com.gateflow.GateFlow.dto.CompanyDto;
 import com.gateflow.GateFlow.model.Company;
+import com.gateflow.GateFlow.model.Visit;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
 import jakarta.transaction.Transactional;
@@ -51,4 +52,11 @@ return companyRepository.save(newCompany);
             })
             .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o ID: " + id) );
     }
+    public boolean existsById(Long id){
+    return companyRepository.existsById(id);
+    }
+    public List<Visit> findVisitsByCompanyId(Long id){
+    return visitRepository.findByCompanyId(id);
+    }
+
 }

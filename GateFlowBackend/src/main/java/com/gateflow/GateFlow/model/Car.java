@@ -19,7 +19,7 @@ public class Car {
     @ManyToOne
     @JoinColumn(name = "company_id")
     private Company company;
-@Column(name = "active", insertable = false,updatable = false)
+@Column(nullable = false,columnDefinition = "boolean default true")
     private boolean active = true;
 
 

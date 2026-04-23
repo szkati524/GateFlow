@@ -15,9 +15,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http)throws Exception{
         http.csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(authorizationManagerRequestMatcherRegistry -> authorizationManagerRequestMatcherRegistry.requestMatchers("/visits/**")
-                        .hasAnyRole("SECURITY","ADMIN")
-                        .requestMatchers("/api/companies/**","/api/drivers/**","*/cars/**").hasRole("ADMIN")
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/api/visits/**").hasAnyRole("SECURITY","ADMIN")
+                        .requestMatchers("/api/companies/**", "/api/drivers/**", "/api/cars/**").hasRole("ADMIN")
                         .anyRequest().authenticated()
                 )
                 .httpBasic(Customizer.withDefaults());

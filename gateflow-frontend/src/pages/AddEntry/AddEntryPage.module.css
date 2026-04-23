@@ -102,3 +102,21 @@
 .submitBtn:hover {
     background-color: #e68a00;
 }
+.navMenu {
+    display: flex;
+    flex-direction: column;
+}
+
+.navMenu a {
+    padding: 20px 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: block; 
+    transition: 0.2s;
+}
+
+.navMenu a:hover {
+    background-color: #e68a00;
+}

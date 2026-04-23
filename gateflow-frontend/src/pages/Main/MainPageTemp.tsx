@@ -1,122 +1,144 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import styles from './MainPage.module.css';
 
-interface VehicleEntry {
-    id:number;
-    registration: string;
-    driverName: string;
-    cargo:string;
-    company:string;
-    entryTime:string;
+
+interface VisitDto {
+    id: number;
+    registrationNumber: string;
+    driverFullName: string;
+    companyName: string;
+    entryTime: string;
+    exitTime?: string;
+    entryCargo: string;
+    exitCargo?: string;
+    durationMinutes: number;
+    status: string;
 }
-const initialEntries: VehicleEntry[] = [
-{ id: 1, registration: 'KMY 12345', driverName: 'Jan Kowalski', cargo: 'Żwir', company: 'TRANS-POL', entryTime: '08:15' },
-    { id: 2, registration: 'KRA 77889', driverName: 'Adam Nowak', cargo: 'Beton', company: 'CEMEX', entryTime: '09:00' },
-];
 
 const MainPage = () => {
+    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
-    const [entries,setEntries] = useState<VehicleEntry[]>(initialEntries);
-    const [exits,setExits] = useState<VehicleEntry[]>([]);
-    const [selectedEntryId,setSelectedEntryId] = useState<number | null>(null);
-    const toggleSidebar = () => {
-        setIsSidebarOpen(!isSidebarOpen);
-    };
-    const moveEntryToExit = () => {
-        if(selectedEntryId == null) return;
-        const entryToMove = entries.find(e => e.id === selectedEntryId);
-        if(entryToMove) {
-            setExits([...exits,entryToMove]);
-            setEntries(entries.filter(e => e.id !== selectedEntryId));
-            setSelectedEntryId(null);
+    const [entries, setEntries] = useState<VisitDto[]>([]);
+    const [exits, setExits] = useState<VisitDto[]>([]);
+    const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
+
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = async () => {
+        try {
+            const [onSiteRes, allRes] = await Promise.all([
+                fetch('/api/visits/on-site'),
+                fetch('/api/visits')
+            ]);
+
+            const onSiteData = await onSiteRes.json();
+            const allData = await allRes.json();
+
+           
+            const activeEntries = onSiteData._embedded?.visits || [];
+            setEntries(activeEntries.reverse());
+
+            const allEntries = allData._embedded?.visits || [];
+            const finished = allEntries
+                .filter((v: VisitDto) => v.exitTime !== null)
+                .sort((a: VisitDto, b: VisitDto) => 
+                    new Date(b.exitTime!).getTime() - new Date(a.exitTime!).getTime()
+                );
+            setExits(finished);
+            
+        } catch (error) {
+            console.error("Błąd pobierania danych:", error);
         }
     };
-return (
+
+    const handleEndStay = async () => {
+        if (selectedEntryId === null) return;
+        try {
+            await fetch(`/api/visits/${selectedEntryId}/exit`, { method: 'PUT' });
+            setSelectedEntryId(null);
+            fetchData(); 
+        } catch (error) {
+            alert("Nie udało się zakończyć pobytu");
+        }
+    };
+
+    return (
         <div className={styles.wrapper}>
             <Header />
 
-           
             <div className={styles.topControls}>
                 <button className={styles.menuTrigger} onClick={toggleSidebar}>
                     {isSidebarOpen ? '✕' : '☰'}
                 </button>
                 <div className={styles.rightActions}>
                     <button className={styles.iconBtn}>⚙️</button>
-                    <button className={styles.logoutBtn}>Wyloguj się</button>
+                    <button className={styles.logoutBtn} onClick={() => navigate('/login')}>Wyloguj się</button>
                 </div>
             </div>
 
-           
             <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
                 <nav className={styles.navMenu}>
-                    <a href="#Main">Ruch pojazdów</a>
-                    <a href="#Search">Wyszukaj</a>
+                    <a onClick={() => navigate('/')}>Ruch pojazdów</a>
+                    <a onClick={() => navigate('/add-entry')}>Dodaj wjazd</a>
+                    <a onClick={() => navigate('/search')}>Wyszukaj</a>
                     <a href="#Raport">Raporty</a>
                 </nav>
             </aside>
 
             <main className={`${styles.content} ${isSidebarOpen ? styles.contentShifted : ''}`}>
                 <div className={styles.actionCenter}>
-                    <button className={styles.addEntryBtn}>+ Dodaj Wjazd</button>
+                    <button className={styles.addEntryBtn} onClick={() => navigate('/add-entry')}>
+                        + Dodaj Wjazd
+                    </button>
                 </div>
 
                 <div className={styles.listsContainer}>
-                  
                     <section className={styles.listSection}>
                         <div className={styles.sectionHeader}>
                             <h2>Wjazdy pojazdów</h2>
-                            <button className={styles.endStayBtn} onClick={moveEntryToExit} disabled={selectedEntryId === null}>
+                            <button className={styles.endStayBtn} onClick={handleEndStay} disabled={selectedEntryId === null}>
                                 Zakończ pobyt
                             </button>
                         </div>
                         <table className={styles.vehicleTable}>
                             <thead>
-                                <tr>
-                                    <th>Edytuj</th>
-                                    <th>Nr Rej</th>
-                                    <th>Nazwisko</th>
-                                    <th>Ładunek</th>
-                                    <th>Firma</th>
-                                    <th>Pobyt</th>
-                                </tr>
+                                <tr><th>Nr Rej</th><th>Nazwisko</th><th>Ładunek</th><th>Firma</th><th>Wjazd</th></tr>
                             </thead>
                             <tbody>
+                         
                                 {entries.map(v => (
-                                    <tr key={v.id} className={selectedEntryId === v.id ? styles.selectedRow : ''} onClick={() => setSelectedEntryId(v.id)}>
-                                        <td><button className={styles.editBtn}>✏️</button></td>
-                                        <td><strong>{v.registration}</strong></td>
-                                        <td>{v.driverName}</td>
-                                        <td>{v.cargo}</td>
-                                        <td>{v.company}</td>
-                                        <td>{v.entryTime}</td>
+                                    <tr key={v.id} 
+                                        className={selectedEntryId === v.id ? styles.selectedRow : ''} 
+                                        onClick={() => setSelectedEntryId(v.id)}>
+                                        <td><strong>{v.registrationNumber}</strong></td>
+                                        <td>{v.driverFullName}</td>
+                                        <td>{v.entryCargo}</td>
+                                        <td>{v.companyName}</td>
+                                        <td>{new Date(v.entryTime).toLocaleTimeString()}</td>
                                     </tr>
                                 ))}
                             </tbody>
                         </table>
                     </section>
 
-                  
                     <section className={styles.listSection}>
                         <div className={styles.sectionHeader}><h2>Wyjazdy</h2></div>
                         <table className={styles.vehicleTable}>
                             <thead>
-                                <tr>
-                                    <th>Nr Rej</th>
-                                    <th>Nazwisko</th>
-                                    <th>Ładunek</th>
-                                    <th>Firma</th>
-                                    <th>Wyjazd</th>
-                                </tr>
+                                <tr><th>Nr Rej</th><th>Nazwisko</th><th>Wyjazd</th></tr>
                             </thead>
                             <tbody>
                                 {exits.map(v => (
                                     <tr key={v.id}>
-                                        <td><strong>{v.registration}</strong></td>
-                                        <td>{v.driverName}</td>
-                                        <td>{v.cargo}</td>
-                                        <td>{v.company}</td>
-                                        <td>14:20</td>
+                                        <td><strong>{v.registrationNumber}</strong></td>
+                                        <td>{v.driverFullName}</td>
+                                        <td>{v.exitTime ? new Date(v.exitTime).toLocaleTimeString() : '-'}</td>
                                     </tr>
                                 ))}
                             </tbody>

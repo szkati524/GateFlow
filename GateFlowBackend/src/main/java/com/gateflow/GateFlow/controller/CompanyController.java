@@ -40,13 +40,13 @@ public class CompanyController {
 
     @GetMapping("/{id}")
 public CompanyDto showCompany(@PathVariable Long id){
-        return companyRepository.findById(id)
+        return companyService.findById(id)
                 .map(companyAssembler::toModel)
                 .orElseThrow(() -> new RuntimeException("Nie znaleziono firmy o ID: " + id) );
 }
     @GetMapping
 public CollectionModel<CompanyDto> getAllCompanies (){
-        return companyAssembler.toCollectionModel(companyRepository.findAll());
+        return companyAssembler.toCollectionModel(companyService.findAllCompany());
     }
     @PutMapping("/{id}")
     public CompanyDto updateCompany(@PathVariable Long id,@RequestBody Company companyRequest){
@@ -57,10 +57,10 @@ public CollectionModel<CompanyDto> getAllCompanies (){
     }
     @GetMapping("/{id}/history")
     public CollectionModel<VisitDto> showVisits(@PathVariable Long id){
-      if(!companyRepository.existsById(id)){
+      if(!companyService.existsById(id)){
           throw new RuntimeException("Nie znaleziono firmy o ID: " + id);
       }
-      return visitAssembler.toCollectionModel(visitRepository.findByCompanyId(id));
+      return visitAssembler.toCollectionModel(companyService.findVisitsByCompanyId(id));
     }
 
 }

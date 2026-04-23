@@ -7,44 +7,51 @@ import com.gateflow.GateFlow.model.Driver;
 import java.util.Objects;
 
 public class EntityRequestDTO {
-    private Car car;
-    private Company company;
-    private Driver driver;
+    String registrationNumber;
+    private String brand;
+    private String companyName;
+    private String driverName;
+    private String driverSurname;
     private String cargo;
 
-    public EntityRequestDTO(){
-
+    public String getRegistrationNumber() {
+        return registrationNumber;
     }
 
-    public EntityRequestDTO(Car car, Company company, Driver driver,String cargo) {
-        this.car = car;
-        this.company = company;
-        this.driver = driver;
-        this.cargo = cargo;
+    public void setRegistrationNumber(String registrationNumber) {
+        this.registrationNumber = registrationNumber;
     }
 
-    public Car getCar() {
-        return car;
+    public String getBrand() {
+        return brand;
     }
 
-    public void setCar(Car car) {
-        this.car = car;
+    public void setBrand(String brand) {
+        this.brand = brand;
     }
 
-    public Company getCompany() {
-        return company;
+    public String getCompanyName() {
+        return companyName;
     }
 
-    public void setCompany(Company company) {
-        this.company = company;
+    public void setCompanyName(String companyName) {
+        this.companyName = companyName;
     }
 
-    public Driver getDriver() {
-        return driver;
+    public String getDriverName() {
+        return driverName;
     }
 
-    public void setDriver(Driver driver) {
-        this.driver = driver;
+    public void setDriverName(String driverName) {
+        this.driverName = driverName;
+    }
+
+    public String getDriverSurname() {
+        return driverSurname;
+    }
+
+    public void setDriverSurname(String driverSurname) {
+        this.driverSurname = driverSurname;
     }
 
     public String getCargo() {
@@ -53,28 +60,5 @@ public class EntityRequestDTO {
 
     public void setCargo(String cargo) {
         this.cargo = cargo;
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (o == null || getClass() != o.getClass()) return false;
-        EntityRequestDTO that = (EntityRequestDTO) o;
-        return Objects.equals(car, that.car) && Objects.equals(company, that.company) && Objects.equals(driver, that.driver) && Objects.equals(cargo, that.cargo);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(car, company, driver, cargo);
-    }
-
-    @Override
-    public String toString() {
-        return "EntityRequestDTO{" +
-                "car=" + car +
-                ", company=" + company +
-                ", driver=" + driver +
-                ", cargo='" + cargo + '\'' +
-                '}';
     }
 }

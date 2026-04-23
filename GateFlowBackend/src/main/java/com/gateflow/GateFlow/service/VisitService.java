@@ -1,32 +1,35 @@
 package com.gateflow.GateFlow.service;
 
+import com.gateflow.GateFlow.assembler.VisitModelAssembler;
 import com.gateflow.GateFlow.dto.EntityRequestDTO;
-import com.gateflow.GateFlow.model.Car;
-import com.gateflow.GateFlow.model.Company;
-import com.gateflow.GateFlow.model.Driver;
-import com.gateflow.GateFlow.model.Visit;
+import com.gateflow.GateFlow.dto.VisitDto;
+import com.gateflow.GateFlow.model.*;
 import com.gateflow.GateFlow.repository.CarRepository;
 import com.gateflow.GateFlow.repository.CompanyRepository;
 import com.gateflow.GateFlow.repository.DriverRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
 import jakarta.transaction.Transactional;
-import org.hibernate.metamodel.mapping.internal.VirtualIdEmbeddable;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @Service
 public class VisitService {
     private final VisitRepository visitRepository;
+    private final VisitModelAssembler assembler;
     private final CarRepository carRepository;
     private final CompanyRepository companyRepository;
     private final DriverRepository driverRepository;
 @Autowired
-    public VisitService(VisitRepository visitRepository, CarRepository carRepository, CompanyRepository companyRepository, DriverRepository driverRepository) {
+    public VisitService(VisitRepository visitRepository, VisitModelAssembler assembler, CarRepository carRepository, CompanyRepository companyRepository, DriverRepository driverRepository) {
         this.visitRepository = visitRepository;
+    this.assembler = assembler;
     this.carRepository = carRepository;
     this.companyRepository = companyRepository;
     this.driverRepository = driverRepository;
@@ -50,32 +53,43 @@ public class VisitService {
     @Transactional
     public Visit registryEntry(EntityRequestDTO request){
 
-        Company finalCompany = companyRepository.findByNameIgnoreCase(request.getCompany().getName())
-                .orElseGet(() -> companyRepository.save(request.getCompany()));
+        Company finalCompany = companyRepository.findByNameIgnoreCase(request.getCompanyName())
+                .orElseGet(() -> {
+                    Company newCompany = new Company();
+                    newCompany.setName(request.getCompanyName());
+                    return companyRepository.save(newCompany);
+                });
 
 
-        Car finalCar = carRepository.findByRegistrationNumberIgnoreCase(request.getCar().getRegistrationNumber())
+        Car finalCar = carRepository.findByRegistrationNumberIgnoreCase(request.getRegistrationNumber())
                 .map(existingCar -> {
-                    existingCar.setBrand(request.getCar().getBrand());
+                    existingCar.setBrand(request.getBrand());
                     existingCar.setCompany(finalCompany);
                     return carRepository.save(existingCar);
                 })
                 .orElseGet(() -> {
-                    request.getCar().setCompany(finalCompany);
-                    return carRepository.save(request.getCar());
+                    Car newCar = new Car();
+                    newCar.setRegistrationNumber(request.getRegistrationNumber());
+                    newCar.setBrand(request.getBrand());
+                    newCar.setCompany(finalCompany);
+                    newCar.setActive(true);
+                    return carRepository.save(newCar);
                 });
 
 
         Driver finalDriver = driverRepository.findByNameAndSurnameIgnoreCase(
-                request.getDriver().getName(),
-                        request.getDriver().getSurname())
+                request.getDriverName(),
+                        request.getDriverSurname())
                 .map(existingDriver -> {
                     existingDriver.setCompany(finalCompany);
                     return driverRepository.save(existingDriver);
                 })
                 .orElseGet(() -> {
-                    request.getDriver().setCompany(finalCompany);
-                    return driverRepository.save(request.getDriver());
+                    Driver newDriver = new Driver();
+                    newDriver.setName(request.getDriverName());
+                    newDriver.setSurname(request.getDriverSurname());
+                    newDriver.setCompany(finalCompany);
+                    return driverRepository.save(newDriver);
                 });
 
 
@@ -89,6 +103,13 @@ public class VisitService {
 
         return visitRepository.save(visit);
     }
+    public List<VisitDto> searchVisits (String reg, String name, String surname, String company, String brand, LocalDate exitTime){
+        Specification<Visit> spec = VisitSpecification.search(reg,name,surname,company,brand,exitTime);
+        return visitRepository.findAll(spec)
+                .stream()
+                .map(assembler::toModel)
+                .collect(Collectors.toList());
+    }
     @Transactional
     public Visit registerExit(String registrationNumber,String exitCargo){
     Visit visit = visitRepository.findFirstByCarRegistrationNumberAndExitTimeIsNullOrderByEntryTimeDesc(registrationNumber)
@@ -96,6 +117,7 @@ public class VisitService {
 
     visit.setExitTime(LocalDateTime.now());
     visit.setExitCargo(exitCargo);
+    visit.getCar().setActive(false);
     return visitRepository.save(visit);
     }
     @Transactional
