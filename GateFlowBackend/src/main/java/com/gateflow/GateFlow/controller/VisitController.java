@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -82,9 +83,11 @@ public class VisitController {
             @RequestParam(required = false) String surname,
             @RequestParam(required = false) String company,
             @RequestParam(required = false) String brand,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate exitTime
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate entryDate,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime entryTime,
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime exitTime
             ) {
-        return visitService.searchVisits(reg,name,surname,company,brand,exitTime);
+        return visitService.searchVisits(reg,name,surname,company,brand,entryTime,exitTime,entryDate);
     }
 }
 

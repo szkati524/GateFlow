@@ -1,122 +1,251 @@
 .wrapper {
+
     width: 100%;
+
     min-height: 100vh;
+
     background-color: #121212;
+
     color: white;
+
     font-family: sans-serif;
+
 }
+
+
 
 .topControls {
+
     position: fixed;
+
     top: 0; left: 0; width: 100%; height: 70px;
+
     display: flex; justify-content: space-between; align-items: center;
+
     padding: 0 20px; z-index: 2001;
+
 }
 
+
+
 .menuTrigger { background: none; border: none; color: white; font-size: 28px; cursor: pointer; }
-.rightActions { display: flex; gap: 15px; }
+
+.rightActions {
+     position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 1001;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
 .logoutBtn { background: transparent; color: white; border: 1px solid white; padding: 5px 15px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+
 .logoutBtn:hover { background-color: white; color: orange; }
 
 
+
+
+
 .sidebar {
+
     position: fixed; top: 0; left: -250px; width: 250px; height: 100%;
+
     background-color: orange; transition: 0.3s; z-index: 1005; padding-top: 80px;
+
 }
+
 .sidebarOpen { left: 0; }
 
 
+
+
+
 .content {
+
     padding: 120px 20px;
+
     display: flex;
+
     justify-content: center;
+
     transition: 0.3s;
+
 }
+
+
 
 .contentShifted { margin-left: 250px; }
 
+
+
 .formCard {
+
     background-color: #1e1e1e;
+
     padding: 40px;
+
     border-radius: 12px;
+
     width: 100%;
+
     max-width: 500px;
+
     border: 1px solid #333;
+
     box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+
 }
+
+
 
 .formCard h2 {
+
     margin-bottom: 25px;
+
     text-align: center;
+
     color: orange;
+
 }
+
+
 
 .entryForm {
+
     display: flex;
+
     flex-direction: column;
+
     gap: 20px;
+
 }
+
+
 
 .inputGroup {
+
     display: flex;
+
     flex-direction: column;
+
     gap: 8px;
+
 }
+
+
 
 .inputGroup label {
+
     font-size: 14px;
+
     color: #aaa;
+
 }
+
+
 
 .inputGroup input {
+
     padding: 12px;
+
     border-radius: 6px;
+
     border: 1px solid #444;
+
     background-color: #2a2a2a;
+
     color: white;
+
     outline: none;
+
 }
+
+
 
 .inputGroup input:focus {
+
     border-color: orange;
+
 }
+
+
 
 .nameRow {
+
     display: flex;
+
     gap: 15px;
+
 }
+
+
 
 .submitBtn {
+
     background-color: orange;
+
     color: white;
+
     border: none;
+
     padding: 15px;
+
     border-radius: 8px;
+
     font-weight: bold;
+
     font-size: 16px;
+
     cursor: pointer;
+
     margin-top: 10px;
+
     transition: 0.3s;
+
 }
+
+
 
 .submitBtn:hover {
+
     background-color: #e68a00;
+
 }
+
 .navMenu {
+
     display: flex;
+
     flex-direction: column;
+
 }
+
+
 
 .navMenu a {
+
     padding: 20px 30px;
+
     text-decoration: none;
+
     color: white;
+
     font-weight: bold;
+
     border-bottom: 1px solid rgba(255, 255, 255, 0.2);
-    display: block; 
+
+    display: block;
+
     transition: 0.2s;
+
 }
 
+
+
 .navMenu a:hover {
+
     background-color: #e68a00;
-}
+
+} 

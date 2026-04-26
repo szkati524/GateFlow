@@ -129,26 +129,47 @@
 
 .searchForm {
     display: grid;
-
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    grid-template-columns: repeat(4, 1fr);
     gap: 15px;
-    margin-bottom: 30px;
     padding: 20px;
     background-color: #252525;
     border-radius: 8px;
     border: 1px solid #3a3a3a;
 }
 
+.formGroup {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.formGroup label {
+    font-size: 12px;
+    color: #aaa;
+}
+
 .searchForm input {
-    padding: 12px 15px;
+    padding: 10px;
     border-radius: 6px;
     border: 1px solid #444;
     background-color: #1a1a1a;
     color: white;
-    font-size: 14px;
-    transition: 0.2s;
 }
 
+.searchBtn {
+    grid-column: span 4; 
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    margin-top: 10px;
+}
+
+.searchBtn:hover {
+    background-color: #e68a00; }
 .searchForm input:focus {
     border-color: orange;
     background-color: #202020;
@@ -172,10 +193,7 @@
     align-self: end;
 }
 
-.searchBtn:hover {
-    background-color: #e68a00;
-    transform: translateY(-1px);
-}
+
 
 .searchBtn:active {
     transform: translateY(1px);
@@ -207,4 +225,13 @@
 
 .vehicleTable strong {
     color: orange;
+}
+.logoutBtn{
+    border:1px solid white;
+    padding:5px 12px;
+    border-radius:4px;
+}
+.logoutBtn:hover{
+    background-color: white;
+    color:orange;
 }

@@ -3,6 +3,7 @@ package com.gateflow.GateFlow.dto;
 import org.springframework.hateoas.RepresentationModel;
 import org.springframework.hateoas.server.core.Relation;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Relation(collectionRelation = "visits",itemRelation = "visit")
@@ -17,6 +18,7 @@ public class VisitDto extends RepresentationModel<VisitDto> {
 
     private LocalDateTime entryTime;
     private LocalDateTime exitTime;
+    private LocalDate entryDate;
     private String entryCargo;
     private String exitCargo;
 
@@ -45,5 +47,9 @@ public class VisitDto extends RepresentationModel<VisitDto> {
     public void setDurationMinutes(long durationMinutes) { this.durationMinutes = durationMinutes; }
     public String getStatus() { return status; }
     public void setStatus(String status) { this.status = status; }
+
+    public void setEntryDate(LocalDate entryDate) {
+        this.entryDate = entryDate;
+    }
 }
 

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useNavigate } from "react-router-dom"; 
 import Header from "../../components/Common/Header";
 import styles from './AddEntryPage.module.css';
+import { apiFetch } from "../../api";
 
 const AddEntryPage = () => {
     const navigate = useNavigate();
@@ -39,7 +40,7 @@ const AddEntryPage = () => {
     };
 
     try {
-        const response = await fetch('/api/visits/entry', {
+        const response = await apiFetch('/api/visits/entry', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -61,6 +62,14 @@ const AddEntryPage = () => {
         alert("Nie udało się połączyć z serwerem.");
     }
 };
+    const handleLogout = () => {
+  
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    
+    
+    navigate('/login');
+};
 
     return (
         <div className={styles.wrapper}>
@@ -72,7 +81,7 @@ const AddEntryPage = () => {
                 </button>
                 <div className={styles.rightActions}>
                     <button className={styles.iconBtn}>⚙️</button>
-                    <button className={styles.logoutBtn}>Wyloguj się</button>
+                   <button className={styles.logoutBtn} onClick={handleLogout}>Wyloguj się</button>
                 </div>
             </div>
 

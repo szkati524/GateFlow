@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import Header from "../../components/Common/Header";
 import styles from './MainPage.module.css';
+import { apiFetch } from "../../api";
 
 
 interface VisitDto {
@@ -25,42 +26,59 @@ const MainPage = () => {
     const [selectedEntryId, setSelectedEntryId] = useState<number | null>(null);
 
     const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
+    const handleLogout = () => {
+  
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    
+    
+    navigate('/login');
+};
 
     useEffect(() => {
         fetchData();
     }, []);
 
     const fetchData = async () => {
-        try {
-            const [onSiteRes, allRes] = await Promise.all([
-                fetch('/api/visits/on-site'),
-                fetch('/api/visits')
-            ]);
+    try {
+        const [onSiteRes, allRes] = await Promise.all([
+            apiFetch('/api/visits/on-site'),
+            apiFetch('/api/visits')
+        ]);
 
-            const onSiteData = await onSiteRes.json();
-            const allData = await allRes.json();
-
-           
-            const activeEntries = onSiteData._embedded?.visits || [];
-            setEntries(activeEntries.reverse());
-
-            const allEntries = allData._embedded?.visits || [];
-            const finished = allEntries
-                .filter((v: VisitDto) => v.exitTime !== null)
-                .sort((a: VisitDto, b: VisitDto) => 
-                    new Date(b.exitTime!).getTime() - new Date(a.exitTime!).getTime()
-                );
-            setExits(finished);
-            
-        } catch (error) {
-            console.error("Błąd pobierania danych:", error);
+        if (!onSiteRes.ok || !allRes.ok) {
+            console.error("Błąd autoryzacji lub serwera:", onSiteRes.status, allRes.status);
+            if (onSiteRes.status === 403) {
+                localStorage.removeItem("token");
+                navigate("/login"); 
+            }
+            return;
         }
-    };
+
+        const onSiteData = await onSiteRes.json();
+        const allData = await allRes.json();
+
+      
+        const activeEntries = onSiteData._embedded?.visits || [];
+        setEntries(activeEntries.reverse());
+
+        const allEntries = allData._embedded?.visits || [];
+        const finished = allEntries
+            .filter((v: VisitDto) => v.exitTime !== null)
+            .sort((a: VisitDto, b: VisitDto) => 
+                new Date(b.exitTime!).getTime() - new Date(a.exitTime!).getTime()
+            );
+        setExits(finished);
+        
+    } catch (error) {
+        console.error("Błąd pobierania danych:", error);
+    }
+};
 
     const handleEndStay = async () => {
         if (selectedEntryId === null) return;
         try {
-            await fetch(`/api/visits/${selectedEntryId}/exit`, { method: 'PUT' });
+            await apiFetch(`/api/visits/${selectedEntryId}/exit`, { method: 'PUT' });
             setSelectedEntryId(null);
             fetchData(); 
         } catch (error) {
@@ -78,7 +96,7 @@ const MainPage = () => {
                 </button>
                 <div className={styles.rightActions}>
                     <button className={styles.iconBtn}>⚙️</button>
-                    <button className={styles.logoutBtn} onClick={() => navigate('/login')}>Wyloguj się</button>
+                    <button className={styles.logoutBtn} onClick={handleLogout}>Wyloguj się</button>
                 </div>
             </div>
 

@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -103,10 +104,27 @@ public class VisitService {
 
         return visitRepository.save(visit);
     }
-    public List<VisitDto> searchVisits (String reg, String name, String surname, String company, String brand, LocalDate exitTime){
-        Specification<Visit> spec = VisitSpecification.search(reg,name,surname,company,brand,exitTime);
-        return visitRepository.findAll(spec)
-                .stream()
+    public List<VisitDto> searchVisits(String reg, String name, String surname, String company, String brand, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate) {
+
+
+
+
+
+        String r = (reg != null && reg.trim().isEmpty()) ? null : reg;
+        String n = (name != null && name.trim().isEmpty()) ? null : name;
+        String s = (surname != null && surname.trim().isEmpty()) ? null : surname;
+        String c = (company != null && company.isEmpty()) ? null : company;
+        String b = (brand != null && brand.trim().isEmpty()) ? null : brand;
+
+
+        Specification<Visit> spec = VisitSpecification.search(r, b, n, s, c, entryDate, entryTime, exitTime);
+
+        List<Visit> results = visitRepository.findAll(spec);
+
+
+
+
+        return results.stream()
                 .map(assembler::toModel)
                 .collect(Collectors.toList());
     }
