@@ -105,7 +105,7 @@ const MainPage = () => {
                     <a onClick={() => navigate('/')}>Ruch pojazdów</a>
                     <a onClick={() => navigate('/add-entry')}>Dodaj wjazd</a>
                     <a onClick={() => navigate('/search')}>Wyszukaj</a>
-                    <a href="#Raport">Raporty</a>
+                    <a onClick={() => navigate('/raport')}>Raporty</a>
                 </nav>
             </aside>
 

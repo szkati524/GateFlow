@@ -10,6 +10,7 @@ import com.gateflow.GateFlow.repository.DriverRepository;
 import com.gateflow.GateFlow.repository.VisitRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.stereotype.Service;
 
@@ -165,7 +166,22 @@ public class VisitService {
     visit.setExitTime(LocalDateTime.now());
     return visitRepository.save(visit);
     }
+public List<VisitDto> getVisitsForReport(LocalDate from,LocalDate to,String companyName){
+    Specification<Visit> spec = Specification.where(null);
+    if (from != null && to != null){
+        spec = spec.and((root, query, criteriaBuilder) ->
+                criteriaBuilder.between(root.get("entryTime"),from.atStartOfDay(),to.atTime(23,59,59)));
 
+    }
+    if (companyName != null && !companyName.trim().isEmpty()){
+        spec = spec.and(((root, query, criteriaBuilder) ->
+                criteriaBuilder.like(criteriaBuilder.lower(root.get("company").get("name")), "%" + companyName.toLowerCase() + "%")));
+
+    }
+    return visitRepository.findAll(spec).stream()
+            .map(assembler::toModel)
+            .collect(Collectors.toList());
+}
 
     }
 

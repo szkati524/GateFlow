@@ -4,6 +4,7 @@ import MainPage from "./pages/Main/MainPageTemp";
 import LoginPage from "./pages/temp_login/LoginPage";
 import "./App.css";
 import SearchPage from "./pages/SeachPage/SearchPageTemp";
+import RaportPage from "./pages/raports/RaportPage";
 
 
 
@@ -16,6 +17,7 @@ return (
         <Route path="/add-entry" element={<AddEntryPage />} />
         <Route path="/" element={<MainPage />} />
         <Route path="/search" element={<SearchPage />} />
+       <Route path="/raport" element={<RaportPage />} />
       </Routes>
     </div>
   </Router>

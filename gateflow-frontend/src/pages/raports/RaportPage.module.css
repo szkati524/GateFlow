@@ -1,0 +1,141 @@
+.wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color: white;
+    font-family: sans-serif;
+}
+
+.topControls {
+    position: fixed;
+    top: 0;           
+    left: 0; 
+    width: 100%; 
+    height: 80px;    
+    display: flex; 
+    justify-content: space-between; 
+    align-items: center;
+    padding: 0 20px; 
+    z-index: 2001;   
+    box-sizing: border-box; 
+    background-color: transparent; 
+}
+
+.menuTrigger { 
+    background: none; 
+    border: none; 
+    color: white; 
+    font-size: 28px; 
+    cursor: pointer; 
+}
+
+.menuTrigger:hover {
+    color: #121212; 
+}
+.rightActions { display: flex; gap: 15px; align-items: center; }
+.logoutBtn { 
+    background: rgba(255, 255, 255, 0.2); 
+    color: white; 
+    border: 1px solid white; 
+    padding: 8px 18px; 
+    border-radius: 6px; 
+    cursor: pointer; 
+    font-weight: bold;
+    white-space: nowrap;
+    transition: 0.3s;
+}
+
+.logoutBtn:hover { 
+    background-color: white; 
+    color: orange; 
+}
+.iconBtn { background: none; border: none; color: white; font-size: 20px; cursor: pointer; }
+
+.sidebar {
+    position: fixed; 
+    top: 0; 
+    left: -250px; 
+    width: 250px; 
+    height: 100%;
+    background-color: orange; 
+    transition: 0.3s; 
+    z-index: 2005; 
+    padding-top: 80px; 
+    box-shadow: 2px 0 10px rgba(0,0,0,0.3);
+}
+.sidebarOpen { left: 0 !important; }
+
+.content {
+    padding: 130px 20px 40px 20px; 
+    display: flex;
+    justify-content: center;
+    transition: 0.3s;
+}
+
+.contentShifted { margin-left: 250px; }
+
+.reportCard {
+    background-color: #1e1e1e;
+    padding: 40px;
+    border-radius: 12px;
+    width: 100%;
+    max-width: 600px;
+    border: 1px solid #333;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.reportCard h2 { margin-bottom: 10px; color: orange; text-align: center; }
+.description { color: #aaa; text-align: center; margin-bottom: 30px; font-size: 14px; }
+
+.reportForm { display: flex; flex-direction: column; gap: 20px; }
+
+.inputGroup { display: flex; flex-direction: column; gap: 8px; }
+.inputGroup label { font-size: 14px; color: #aaa; }
+
+.inputGroup input, .selectInput {
+    padding: 12px;
+    border-radius: 6px;
+    border: 1px solid #444;
+    background-color: #2a2a2a;
+    color: white;
+    outline: none;
+    box-sizing: border-box;
+    width: 100%;
+}
+
+.dateRow { display: flex; gap: 15px; }
+.dateRow .inputGroup { flex: 1; }
+
+.buttonGroup {
+    display: flex;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.actionBtn {
+    flex: 1;
+    padding: 15px;
+    border: none;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.3s;
+    font-size: 15px;
+}
+
+.pdfBtn { background-color: #e74c3c; color: white; }
+.pdfBtn:hover { background-color: #c0392b; }
+
+.excelBtn { background-color: #27ae60; color: white; }
+.excelBtn:hover { background-color: #1e8449; }
+
+.navMenu a {
+    padding: 20px 30px;
+    text-decoration: none;
+    color: white;
+    font-weight: bold;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+    display: block;
+    cursor: pointer;
+}
+.navMenu a:hover, .activeLink { background-color: #e68a00; }
