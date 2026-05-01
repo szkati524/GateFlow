@@ -95,7 +95,10 @@ const MainPage = () => {
                     {isSidebarOpen ? '✕' : '☰'}
                 </button>
                 <div className={styles.rightActions}>
-                    <button className={styles.iconBtn}>⚙️</button>
+                    <button className={styles.iconBtn}
+                    onClick={() => navigate('/options')}
+                    >
+                        ⚙️</button>
                     <button className={styles.logoutBtn} onClick={handleLogout}>Wyloguj się</button>
                 </div>
             </div>

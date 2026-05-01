@@ -1,0 +1,165 @@
+.wrapper {
+    width: 100%;
+    min-height: 100vh;
+    background-color: #121212;
+    color: #e0e0e0;
+    font-family: 'Segoe UI', sans-serif;
+}
+
+/* --- SIDEBAR & HAMBURGER --- */
+.sidebar {
+    position: fixed;
+    top: 0;
+    left: -260px;
+    width: 260px;
+    height: 100%;
+    background-color: #ff9800;
+    transition: 0.3s;
+    z-index: 2005;
+    padding-top: 80px;
+}
+
+.sidebarOpen {
+    left: 0 !important;
+}
+
+.menuTrigger {
+    position: fixed;
+    top: 15px;
+    left: 20px;
+    z-index: 2100;
+    background: #ff9800; /* Pomarańczowe tło przycisku */
+    border: none;
+    color: white;
+    width: 45px;
+    height: 45px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 20px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.3);
+}
+
+.navMenu a {
+    padding: 18px 30px;
+    display: block;
+    color: white;
+    text-decoration: none;
+    font-weight: bold;
+    cursor: pointer;
+    border-bottom: 1px solid rgba(255,255,255,0.1);
+}
+
+/* --- TOP ACTIONS (RIGHT) --- */
+.rightActions {
+    position: fixed;
+    top: 15px;
+    right: 20px;
+    z-index: 2100;
+    display: flex;
+    gap: 15px;
+    align-items: center;
+}
+
+.iconBtn {
+    background: #2a2a2a;
+    border: 1px solid #444;
+    font-size: 20px;
+    padding: 5px 10px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.whiteLogoutBtn {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.whiteLogoutBtn:hover {
+    background-color: #e0e0e0;
+}
+
+/* --- FORMS & SECTIONS --- */
+.content {
+    padding: 100px 40px 40px 40px;
+    transition: 0.3s;
+}
+
+.contentShifted {
+    margin-left: 260px;
+}
+
+.listSection {
+    background-color: #1e1e1e;
+    padding: 25px;
+    border-radius: 12px;
+    border: 1px solid #333;
+    margin-bottom: 30px;
+}
+
+.sectionHeader h2 {
+    color: orange;
+    font-size: 18px;
+    margin-bottom: 20px;
+}
+
+/* Przyciski białe wewnątrz formularzy */
+.whiteActionBtn {
+    background-color: white;
+    color: black;
+    border: none;
+    padding: 0 25px;
+    height: 40px;
+    border-radius: 6px;
+    font-weight: bold;
+    cursor: pointer;
+    transition: 0.2s;
+}
+
+.whiteActionBtn:hover {
+    background-color: #e0e0e0;
+}
+
+/* Formularze w linii */
+.passwordForm, .adminInlineForm {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+    align-items: center;
+}
+
+.inputField {
+    padding: 8px 12px;
+    background-color: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: white;
+    height: 40px;
+    min-width: 200px;
+}
+
+/* --- TABLE --- */
+.vehicleTable {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.vehicleTable th {
+    text-align: left;
+    padding: 12px;
+    border-bottom: 2px solid #333;
+    color: #888;
+}
+
+.vehicleTable td {
+    padding: 12px;
+    border-bottom: 1px solid #282828;
+}
+
+.editLink { background: none; border: none; color: #3498db; cursor: pointer; margin-right: 10px; }
+.deleteLink { background: none; border: none; color: #e74c3c; cursor: pointer; }

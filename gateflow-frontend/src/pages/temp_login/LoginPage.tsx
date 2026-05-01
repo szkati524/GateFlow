@@ -31,10 +31,17 @@ const LoginPage = () => {
             })
         });
 
-        if (response.ok) {
-            const data = await response.json();
-            localStorage.setItem("token", data.token);
-            navigate("/");
+    if (response.ok) {
+    const data = await response.json();
+    console.log("SUKCES! Pełne dane z serwera:", data); 
+
+    localStorage.setItem("token", data.token);
+
+   
+    localStorage.setItem("user", JSON.stringify(data)); 
+    
+    navigate("/");
+
         } else {
            
             const errorData = await response.text();

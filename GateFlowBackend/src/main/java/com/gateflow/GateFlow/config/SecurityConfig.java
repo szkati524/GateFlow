@@ -37,6 +37,8 @@ http.cors(Customizer.withDefaults())
                 .authorizeHttpRequests(auth -> auth
                         .requestMatchers("/", "/index.html", "/static/**", "/*.js", "/*.css").permitAll()
                         .requestMatchers("/api/auth/**").permitAll()
+                        .requestMatchers("/api/users/change-password").authenticated()
+                        .requestMatchers("/api/users/**").hasRole("ADMIN")
                         .requestMatchers("/api/visits/**").hasAnyRole("SECURITY","ADMIN")
                         .requestMatchers("/api/companies/**", "/api/drivers/**", "/api/cars/**").hasRole("ADMIN")
                         .anyRequest().authenticated()

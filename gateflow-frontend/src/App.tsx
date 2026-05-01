@@ -5,6 +5,7 @@ import LoginPage from "./pages/temp_login/LoginPage";
 import "./App.css";
 import SearchPage from "./pages/SeachPage/SearchPageTemp";
 import RaportPage from "./pages/raports/RaportPage";
+import Options from "./pages/Options/Options";
 
 
 
@@ -18,6 +19,7 @@ return (
         <Route path="/" element={<MainPage />} />
         <Route path="/search" element={<SearchPage />} />
        <Route path="/raport" element={<RaportPage />} />
+       <Route path="/options" element={<Options/>} />
       </Routes>
     </div>
   </Router>

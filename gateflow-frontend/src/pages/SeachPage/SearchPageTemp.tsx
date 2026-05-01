@@ -53,8 +53,12 @@ const SearchPage = () => {
                 <button className={styles.menuTrigger} onClick={toggleSidebar}>
                     {isSidebarOpen ? '✕' : '☰'}
                 </button>
-                <div className={styles.rightActions}>
-                    <button className={styles.iconBtn}>⚙️</button>
+                
+            <div className={styles.rightActions}>
+                    <button className={styles.iconBtn}
+                    onClick={() => navigate('/options')}
+                    >
+                        ⚙️</button>
                     <button className={styles.logoutBtn} onClick={handleLogout}>Wyloguj się</button>
                 </div>
             </div>

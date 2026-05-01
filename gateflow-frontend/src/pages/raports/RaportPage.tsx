@@ -24,9 +24,40 @@ const ReportsPage = () => {
     };
 
     const handleGenerateReport = async (format: 'pdf' | 'excel') => {
-        
-        console.log(`Generowanie raportu ${format}...`, reportParams);
-        alert(`Rozpoczęto generowanie raportu w formacie ${format.toUpperCase()}. Plik zostanie pobrany automatycznie.`);
+        const { dateFrom, dateTo, company } = reportParams;
+
+        if (!dateFrom || !dateTo) {
+            alert("Wybierz datę początkową i końcową!");
+            return;
+        }
+
+        try {
+            const token = localStorage.getItem("token");
+            const response = await fetch(
+                `http://localhost:8081/api/reports/download?format=${format}&dateFrom=${dateFrom}&dateTo=${dateTo}&company=${company}`,
+                {
+                    method: 'GET',
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                }
+            );
+
+            if (!response.ok) throw new Error("Błąd pobierania raportu");
+
+            const blob = await response.blob();
+            const url = window.URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `raport_${dateFrom}_${dateTo}.${format === 'excel' ? 'xlsx' : 'pdf'}`;
+            document.body.appendChild(a);
+            a.click();
+            window.URL.revokeObjectURL(url);
+            a.remove();
+        } catch (error) {
+            console.error("Błąd:", error);
+            alert("Nie udało się wygenerować raportu.");
+        }
     };
 
     const handleLogout = () => {

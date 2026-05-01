@@ -16,8 +16,10 @@ public class User implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+    private String fullName;
     private String username;
     private String password;
+
     @Enumerated(EnumType.STRING)
     private Role role;
 
@@ -79,4 +81,11 @@ public class User implements UserDetails {
         this.role = role;
     }
 
+    public String getFullName() {
+        return fullName;
+    }
+
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
+    }
 }
