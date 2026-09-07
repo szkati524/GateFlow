@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../../components/Common/Header";
+import Navbar from "../../components/Common/Navbar";
 import styles from './Options.module.css'; 
 import { apiFetch } from "../../api";
 
@@ -12,13 +11,22 @@ interface User {
 }
 
 const OptionsPage = () => {
-    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     const [isAdmin, setIsAdmin] = useState(false); 
     const [users, setUsers] = useState<User[]>([]);
 
     const [newUser, setNewUser] = useState({ username: '', fullName: '', password: '', role: 'ROLE_SECURITY' });
     const [pwdData, setPwdData] = useState({ old: '', new1: '', new2: '' });
+
+    const [editingUser, setEditingUser] = useState<{
+        id: number;
+        username: string;
+        fullName: string;
+        role: string;
+        password?: string;
+    } | null>(null);
+
+    const toggleSidebar = () => setIsSidebarOpen(!isSidebarOpen);
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -27,14 +35,13 @@ const OptionsPage = () => {
             try {
                 const base64Url = token.split('.')[1];
                 const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(function(c) {
-                    return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-                }).join(''));
+                const jsonPayload = decodeURIComponent(window.atob(base64).split('').map(c => 
+                    '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)
+                ).join(''));
 
                 const decoded = JSON.parse(jsonPayload);
                 const username = decoded.sub;
                 
-                // Sprawdzanie czy użytkownik ma uprawnienia admina
                 if (username === 'admin' || decoded.role === 'ADMIN' || decoded.role === 'ROLE_ADMIN') {
                     setIsAdmin(true);
                     fetchUsers();
@@ -82,13 +89,15 @@ const OptionsPage = () => {
         if (!window.confirm("Czy na pewno usunąć użytkownika?")) return;
         try {
             const res = await apiFetch(`/api/users/${id}`, { method: 'DELETE' });
-            if (res.ok) fetchUsers();
+            if (res.ok) {
+                if (editingUser?.id === id) setEditingUser(null);
+                fetchUsers();
+            }
         } catch (err) {
             console.error(err);
         }
     };
 
-    // POPRAWIONA FUNKCJA: Zmiana hasła z dołączonym tokenem
     const handleChangePassword = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -104,7 +113,7 @@ const OptionsPage = () => {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
-                    'Authorization': `Bearer ${token}` // <--- Dodanie autoryzacji rozwiązuje błąd 403
+                    'Authorization': `Bearer ${token}`
                 },
                 body: JSON.stringify({
                     oldPassword: pwdData.old,
@@ -117,8 +126,42 @@ const OptionsPage = () => {
                 setPwdData({ old: '', new1: '', new2: '' }); 
             } else {
                 const errorData = await res.json().catch(() => ({}));
-                // 403 może też oznaczać błędne stare hasło, jeśli backend tak to zwraca
                 alert(`Błąd: ${errorData.message || "Błąd autoryzacji lub niepoprawne stare hasło"}`);
+            }
+        } catch (err) {
+            alert("Błąd połączenia z serwerem.");
+        }
+    };
+
+   
+    const handleStartEdit = (user: User) => {
+        setEditingUser({
+            id: user.id,
+            username: user.username,
+            fullName: user.fullName,
+            role: user.role,
+            password: ''
+        });
+    };
+
+   
+    const handleUpdateUser = async (e: React.FormEvent) => {
+        e.preventDefault();
+        if (!editingUser) return;
+
+        try {
+            const res = await apiFetch(`/api/users/${editingUser.id}`, {
+                method: 'PUT',
+                body: JSON.stringify(editingUser)
+            });
+
+            if (res.ok) {
+                alert("Dane użytkownika zostały zaktualizowane!");
+                setEditingUser(null);
+                fetchUsers();
+            } else {
+                const errorData = await res.json().catch(() => ({}));
+                alert(`Błąd: ${errorData.message || "Nie udało się zaktualizować użytkownika"}`);
             }
         } catch (err) {
             alert("Błąd połączenia z serwerem.");
@@ -127,29 +170,10 @@ const OptionsPage = () => {
 
     return (
         <div className={styles.wrapper}>
-            <Header />
-            
-            <button className={styles.menuTrigger} onClick={() => setIsSidebarOpen(!isSidebarOpen)}>
-                {isSidebarOpen ? '✕' : '☰'}
-            </button>
-
-            <div className={styles.rightActions}>
-                <button className={styles.iconBtn} onClick={() => navigate('/options')}>⚙️</button>
-                <button className={styles.whiteLogoutBtn} onClick={() => { localStorage.clear(); navigate('/login'); }}>Wyloguj</button>
-            </div>
-
-            <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-                <nav className={styles.navMenu}>
-                    <a onClick={() => navigate('/')}>Ruch pojazdów</a>
-                    <a onClick={() => navigate('/add-entry')}>Dodaj wjazd</a>
-                    <a onClick={() => navigate('/search')}>Wyszukaj</a>
-                    <a onClick={() => navigate('/raport')}>Raporty</a>
-                </nav>
-            </aside>
+            <Navbar isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
 
             <main className={`${styles.content} ${isSidebarOpen ? styles.contentShifted : ''}`}>
                 <div className={styles.listsContainer}>
-                    
                     <section className={styles.listSection}>
                         <div className={styles.sectionHeader}>
                             <h2>Zmiana Twojego hasła</h2>
@@ -245,8 +269,18 @@ const OptionsPage = () => {
                                             <td>{u.username}</td>
                                             <td><strong>{u.role}</strong></td>
                                             <td className={styles.tableActions}>
-                                                <button className={styles.editLink}>Edytuj</button>
-                                                <button className={styles.deleteLink} onClick={() => handleDeleteUser(u.id)}>Usuń</button>
+                                                <button 
+                                                    className={styles.editLink} 
+                                                    onClick={() => handleStartEdit(u)}
+                                                >
+                                                    Edytuj
+                                                </button>
+                                                <button 
+                                                    className={styles.deleteLink} 
+                                                    onClick={() => handleDeleteUser(u.id)}
+                                                >
+                                                    Usuń
+                                                </button>
                                             </td>
                                         </tr>
                                     )) : (
@@ -254,6 +288,55 @@ const OptionsPage = () => {
                                     )}
                                 </tbody>
                             </table>
+
+                            
+                            {editingUser && (
+                                <div style={{ marginTop: '25px', paddingTop: '20px', borderTop: '1px solid #333' }}>
+                                    <h3>Edycja użytkownika: <span style={{ color: 'orange' }}>{editingUser.username}</span></h3>
+                                    <form className={styles.adminInlineForm} onSubmit={handleUpdateUser}>
+                                        <input 
+                                            placeholder="Imię i Nazwisko" 
+                                            className={styles.inputField} 
+                                            value={editingUser.fullName}
+                                            onChange={(e) => setEditingUser({...editingUser, fullName: e.target.value})}
+                                            required
+                                        />
+                                        <input 
+                                            placeholder="Login" 
+                                            className={styles.inputField} 
+                                            value={editingUser.username}
+                                            onChange={(e) => setEditingUser({...editingUser, username: e.target.value})}
+                                            required
+                                        />
+                                        <input 
+                                            type="password" 
+                                            placeholder="Nowe hasło (opcjonalnie)" 
+                                            className={styles.inputField} 
+                                            value={editingUser.password || ''}
+                                            onChange={(e) => setEditingUser({...editingUser, password: e.target.value})}
+                                        />
+                                        <select 
+                                            className={styles.inputField}
+                                            value={editingUser.role}
+                                            onChange={(e) => setEditingUser({...editingUser, role: e.target.value})}
+                                        >
+                                            <option value="ROLE_SECURITY">SECURITY</option>
+                                            <option value="ROLE_ADMIN">ADMIN</option>
+                                        </select>
+                                        <div style={{ display: 'flex', gap: '10px', gridColumn: 'span 2' }}>
+                                            <button type="submit" className={styles.whiteActionBtn}>Zapisz zmiany</button>
+                                            <button 
+                                                type="button" 
+                                                className={styles.whiteActionBtn} 
+                                                style={{ backgroundColor: '#444' }}
+                                                onClick={() => setEditingUser(null)}
+                                            >
+                                                Anuluj
+                                            </button>
+                                        </div>
+                                    </form>
+                                </div>
+                            )}
                         </section>
                     )}
                 </div>

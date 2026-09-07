@@ -13,7 +13,9 @@ import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.IanaLinkRelations;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
 
+import java.net.URI;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -33,14 +35,17 @@ public class VisitController {
         this.assembler = assembler;
     }
 
-
-
     @PostMapping("/entry")
     public ResponseEntity<VisitDto> registryEntry(@RequestBody EntityRequestDTO request) {
         Visit savedVisit = visitService.registryEntry(request);
         VisitDto dto = assembler.toModel(savedVisit);
-        return ResponseEntity.created(dto.getRequiredLink(IanaLinkRelations.SELF).toUri()).body(dto);
 
+        URI location = ServletUriComponentsBuilder.fromCurrentRequest()
+                .path("/{id}")
+                .buildAndExpand(dto.id())
+                .toUri();
+
+        return ResponseEntity.created(location).body(dto);
     }
 
     @GetMapping("/{id}")
@@ -51,24 +56,23 @@ public class VisitController {
     }
 
     @GetMapping
-    public CollectionModel<VisitDto> getAllVisits() {
-        return assembler.toCollectionModel(visitService.findAllVisits());
+    public List<VisitDto> getAllVisits() {
+        return visitService.findAllVisits().stream()
+                .map(assembler::toModel)
+                .toList();
     }
 
     @PutMapping("/{id}/exit")
-        public VisitDto exitVisit(@PathVariable Long id, @RequestParam(required = false) String exitCargo) {
-        Visit updatedVisit = visitService.registerExitById(id,exitCargo);
+    public VisitDto exitVisit(@PathVariable Long id, @RequestParam(required = false) String exitCargo) {
+        Visit updatedVisit = visitService.registerExitById(id, exitCargo);
         return assembler.toModel(updatedVisit);
-
-
     }
 
     @GetMapping("/on-site")
-    public CollectionModel<VisitDto> getVisitsOnSite() {
-        List<Visit> activeVisits = visitService.findByExitTimeIsNull();
-        return assembler.toCollectionModel(activeVisits);
-
-
+    public List<VisitDto> getVisitsOnSite() {
+        return visitService.findByExitTimeIsNull().stream()
+                .map(assembler::toModel)
+                .toList();
     }
 
     @PutMapping("/exit/{registrationNumber}")
@@ -76,6 +80,7 @@ public class VisitController {
         Visit updatedVisit = visitService.registerExitByRegistration(registrationNumber, exitCargo);
         return assembler.toModel(updatedVisit);
     }
+
     @GetMapping("/search")
     public List<VisitDto> searchVisits(
             @RequestParam(required = false) String reg,
@@ -85,9 +90,9 @@ public class VisitController {
             @RequestParam(required = false) String brand,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate entryDate,
             @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime entryTime,
-            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME)LocalTime exitTime
-            ) {
-        return visitService.searchVisits(reg,name,surname,company,brand,entryTime,exitTime,entryDate);
+            @RequestParam(required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.TIME) LocalTime exitTime
+    ) {
+        return visitService.searchVisits(reg, name, surname, company, brand, entryDate, entryTime, exitTime);
     }
 }
 

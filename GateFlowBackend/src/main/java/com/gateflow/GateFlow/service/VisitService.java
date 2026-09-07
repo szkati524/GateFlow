@@ -12,6 +12,7 @@ import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.autoconfigure.rsocket.RSocketProperties;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
@@ -37,18 +38,14 @@ public class VisitService {
     this.driverRepository = driverRepository;
 }
 
-    public Visit addVisit(Visit visit){
-    return visitRepository.save(visit);
-    }
+
     public Optional<Visit> findVisitById(Long id){
     return visitRepository.findById(id);
     }
     public List<Visit> findAllVisits(){
     return visitRepository.findAll();
     }
-    public void deleteVisitById(Long id){
-    visitRepository.deleteById(id);
-    }
+
     public List<Visit> findByExitTimeIsNull(){
     return visitRepository.findByExitTimeIsNull();
     }
@@ -79,7 +76,7 @@ public class VisitService {
                 });
 
 
-        Driver finalDriver = driverRepository.findByNameAndSurnameIgnoreCase(
+        Driver finalDriver = driverRepository.findFirstByNameAndSurnameIgnoreCase(
                 request.getDriverName(),
                         request.getDriverSurname())
                 .map(existingDriver -> {
@@ -105,40 +102,25 @@ public class VisitService {
 
         return visitRepository.save(visit);
     }
-    public List<VisitDto> searchVisits(String reg, String name, String surname, String company, String brand, LocalTime entryTime, LocalTime exitTime, LocalDate entryDate) {
-
-
-
+    public List<VisitDto> searchVisits(String reg, String name, String surname, String company, String brand, LocalDate entryDate, LocalTime entryTime, LocalTime exitTime) {
 
 
         String r = (reg != null && reg.trim().isEmpty()) ? null : reg;
         String n = (name != null && name.trim().isEmpty()) ? null : name;
         String s = (surname != null && surname.trim().isEmpty()) ? null : surname;
-        String c = (company != null && company.isEmpty()) ? null : company;
+        String c = (company != null && company.trim().isEmpty()) ? null : company;
         String b = (brand != null && brand.trim().isEmpty()) ? null : brand;
 
 
         Specification<Visit> spec = VisitSpecification.search(r, b, n, s, c, entryDate, entryTime, exitTime);
 
-        List<Visit> results = visitRepository.findAll(spec);
+       return visitRepository.findAll(spec).stream()
+               .map(assembler::toModel)
+               .collect(Collectors.toList());
 
 
-
-
-        return results.stream()
-                .map(assembler::toModel)
-                .collect(Collectors.toList());
     }
-    @Transactional
-    public Visit registerExit(String registrationNumber,String exitCargo){
-    Visit visit = visitRepository.findFirstByCarRegistrationNumberAndExitTimeIsNullOrderByEntryTimeDesc(registrationNumber)
-            .orElseThrow(() -> new RuntimeException("Nie znaleziono aktywnej wizyty dla pojazdu " + registrationNumber) );
 
-    visit.setExitTime(LocalDateTime.now());
-    visit.setExitCargo(exitCargo);
-    visit.getCar().setActive(false);
-    return visitRepository.save(visit);
-    }
     @Transactional
     public Visit registerExitById(Long id,String exitCargo) {
         Visit visit = visitRepository.findById(id)

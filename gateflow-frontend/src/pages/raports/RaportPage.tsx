@@ -1,10 +1,8 @@
 import { useState } from "react";
-import { useNavigate } from "react-router-dom";
-import Header from "../../components/Common/Header";
+import Navbar from "../../components/Common/Navbar";
 import styles from './RaportPage.module.css';
 
 const ReportsPage = () => {
-    const navigate = useNavigate();
     const [isSidebarOpen, setIsSidebarOpen] = useState(false);
     
     const [reportParams, setReportParams] = useState({
@@ -60,34 +58,9 @@ const ReportsPage = () => {
         }
     };
 
-    const handleLogout = () => {
-        localStorage.removeItem("token");
-        localStorage.removeItem("user");
-        navigate('/login');
-    };
-
     return (
         <div className={styles.wrapper}>
-            <Header />
-
-            <div className={styles.topControls}>
-                <button className={styles.menuTrigger} onClick={toggleSidebar}>
-                    {isSidebarOpen ? '✕' : '☰'}
-                </button>
-                <div className={styles.rightActions}>
-                    <button className={styles.iconBtn}>⚙️</button>
-                    <button className={styles.logoutBtn} onClick={handleLogout}>Wyloguj się</button>
-                </div>
-            </div>
-
-            <aside className={`${styles.sidebar} ${isSidebarOpen ? styles.sidebarOpen : ''}`}>
-                <nav className={styles.navMenu}>
-                    <a onClick={() => navigate("/")}>Ruch pojazdów</a>
-                    <a onClick={() => navigate("/add-entry")}>Dodaj wjazd</a>
-                    <a onClick={() => navigate("/search")}>Wyszukaj</a>
-                    <a onClick={() => navigate("/reports")} className={styles.activeLink}>Raporty</a>
-                </nav>
-            </aside>
+            <Navbar isSidebarOpen={isSidebarOpen} onToggleSidebar={toggleSidebar} />
 
             <main className={`${styles.content} ${isSidebarOpen ? styles.contentShifted : ''}`}>
                 <div className={styles.reportCard}>

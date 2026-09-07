@@ -9,8 +9,13 @@ import java.util.Optional;
 
 @Repository
 public interface DriverRepository extends JpaRepository<Driver,Long> {
-    public Optional<Driver> findByNameAndSurnameIgnoreCase(String name, String surname);
-    public List<Driver> findByCompanyNameIgnoreCase(String name);
-    public List<Driver> findByCompanyId(Long id);
+    Optional<Driver> findFirstByNameAndSurnameIgnoreCase(String name, String surname);
 
+
+    List<Driver> findByCompanyNameIgnoreCase(String companyName);
+
+
+    List<Driver> findByCompanyId(Long companyId);
 }
+
+

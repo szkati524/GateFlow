@@ -65,13 +65,14 @@ public class ReportService {
             for (VisitDto dto : visits) {
                 Row row = sheet.createRow(rowIdx++);
 
-                row.createCell(0).setCellValue(dto.getId());
-                row.createCell(1).setCellValue(dto.getRegistrationNumber());
-                row.createCell(2).setCellValue(dto.getDriverFullName());
-                row.createCell(3).setCellValue(dto.getCompanyName());
-                row.createCell(4).setCellValue(dto.getEntryTime() != null ? dto.getEntryTime().toString() : "");
-                row.createCell(5).setCellValue(dto.getEntryCargo());
-                row.createCell(6).setCellValue(dto.getStatus());
+                row.createCell(0).setCellValue(dto.id());
+                row.createCell(1).setCellValue(dto.registrationNumber());
+                row.createCell(2).setCellValue(dto.driverName());
+                row.createCell(3).setCellValue(dto.surname());
+                row.createCell(4).setCellValue(dto.companyName());
+                row.createCell(5).setCellValue(dto.entryTime() != null ? dto.entryTime().toString() : "");
+                row.createCell(6).setCellValue(dto.entryCargo());
+                row.createCell(7).setCellValue(dto.status());
             }
 
 
@@ -122,12 +123,13 @@ public class ReportService {
 
 
             for (VisitDto dto : visits) {
-                table.addCell(dto.getRegistrationNumber());
-                table.addCell(dto.getCompanyName());
-                table.addCell(dto.getDriverFullName());
-                table.addCell(dto.getEntryTime() != null ? dto.getEntryTime().toString() : "-");
-                table.addCell(dto.getEntryCargo() != null ? dto.getEntryCargo() : "-");
-                table.addCell(dto.getStatus());
+                table.addCell(dto.registrationNumber());
+                table.addCell(dto.companyName());
+                table.addCell(dto.driverName());
+                table.addCell(dto.surname());
+                table.addCell(dto.entryTime() != null ? dto.entryTime().toString() : "-");
+                table.addCell(dto.entryCargo() != null ? dto.entryCargo() : "-");
+                table.addCell(dto.status());
             }
 
             document.add(table);

@@ -1,0 +1,18 @@
+
+.wrapper {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #121212;
+  color: #e0e0e0;
+  font-family: sans-serif;
+  overflow-x: hidden;
+}
+
+.content {
+  padding: 110px 40px 40px 40px;
+  transition: margin-left 0.3s ease;
+}
+
+.contentShifted {
+  margin-left: 250px;
+}

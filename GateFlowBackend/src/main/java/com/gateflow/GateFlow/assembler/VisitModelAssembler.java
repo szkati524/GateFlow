@@ -8,46 +8,49 @@ import org.springframework.hateoas.server.mvc.RepresentationModelAssemblerSuppor
 import org.springframework.stereotype.Component;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 
 @Component
-public class VisitModelAssembler extends RepresentationModelAssemblerSupport<Visit,VisitDto> {
+public class VisitModelAssembler {
 
-    public VisitModelAssembler() {
-        super(VisitController.class, VisitDto.class);
-    }
 
-    @Override
     public VisitDto toModel(Visit visit) {
-        VisitDto dto = createModelWithId(visit.getId(),visit);
-        dto.setId(visit.getId());
-        if(visit.getCar() != null){
-            dto.setRegistrationNumber(visit.getCar().getRegistrationNumber());
-        }
-        if(visit.getDriver() != null){
-            dto.setDriverFullName(visit.getDriver().getName() + " " + visit.getDriver().getSurname());
-        }
-        if(visit.getCompany() != null){
-            dto.setCompanyName(visit.getCompany().getName());
-        }
-        dto.setEntryCargo(visit.getEntryCargo());
-        dto.setExitCargo(visit.getExitCargo());
-        dto.setEntryTime(visit.getEntryTime());
-        dto.setExitTime(visit.getExitTime());
+        if (visit == null) return null;
+
         LocalDateTime endTime = (visit.getExitTime() != null) ? visit.getExitTime() : LocalDateTime.now();
-        if (visit.getEntryTime() != null){
-            dto.setDurationMinutes(Duration.between(visit.getEntryTime(),endTime).toMinutes());
-        }
-        dto.setStatus(visit.getExitTime() == null ? "ACTIVE" : "COMPLETED");
-        return dto;
-    }
-    @Override
-    public CollectionModel<VisitDto> toCollectionModel(Iterable<? extends Visit> entities){
-        CollectionModel<VisitDto> visitModels = super.toCollectionModel(entities);
-        visitModels.add(linkTo(methodOn(VisitController.class).getAllVisits()).withSelfRel());
-        return visitModels;
+        long duration = (visit.getEntryTime() != null)
+                ? Duration.between(visit.getEntryTime(), endTime).toMinutes()
+                : 0L;
+
+        String regNum = (visit.getCar() != null) ? visit.getCar().getRegistrationNumber() : null;
+        String driverName = (visit.getDriver() != null) ? visit.getDriver().getName() : null;
+        String surname = (visit.getDriver() != null) ? visit.getDriver().getSurname() : null;
+        String compName = (visit.getCompany() != null) ? visit.getCompany().getName() : null;
+        LocalDate entryDate = (visit.getEntryTime() != null) ? visit.getEntryTime().toLocalDate() : null;
+        String status = (visit.getExitTime() == null) ? "ACTIVE" : "COMPLETED";
+
+        return new VisitDto(
+                visit.getId(),
+                regNum,
+                driverName,
+                surname,
+                compName,
+                visit.getEntryTime(),
+                visit.getExitTime(),
+                entryDate,
+                visit.getEntryCargo(),
+                visit.getExitCargo(),
+                duration,
+                status
+        );
     }
 }
+
+
